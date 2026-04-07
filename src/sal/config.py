@@ -1,4 +1,4 @@
-"""Paths, API endpoints, and constants for Dispute Agent Elite.
+"""Paths, API endpoints, and constants for Sal — Skyline Agentic Lawyer.
 
 Canonical project root: INTENDED_PROJECT_ROOT (see below).
 """
@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 from typing import Any
 
-_ROOT_DIR = Path(__file__).resolve().parent
+_ROOT_DIR = Path(__file__).resolve().parent.parent.parent  # src/sal/ → project root
 try:
     from dotenv import load_dotenv
 

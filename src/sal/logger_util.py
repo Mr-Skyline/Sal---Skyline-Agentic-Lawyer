@@ -5,7 +5,7 @@ import json
 from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 
-from config import LOG_FILE
+from .config import LOG_FILE
 
 
 def log_event(

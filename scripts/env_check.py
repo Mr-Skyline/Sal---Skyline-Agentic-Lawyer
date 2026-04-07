@@ -21,7 +21,8 @@ def _ascii_path(p: Path, root: Path) -> str:
 
 
 def main() -> int:
-    root = Path(__file__).resolve().parent
+    root = Path(__file__).resolve().parent.parent
+    sys.path.insert(0, str(root))
     try:
         from dotenv import load_dotenv
 
@@ -42,7 +43,7 @@ def main() -> int:
     lines.append(f"  credentials.json: {'yes' if cred else 'no'}")
 
     try:
-        from sal_prompt import default_sal_prompt_path, load_sal_behavioral_text
+        from src.sal.sal_prompt import default_sal_prompt_path, load_sal_behavioral_text
 
         p = default_sal_prompt_path()
         body = load_sal_behavioral_text()

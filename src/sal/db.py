@@ -4,7 +4,7 @@ from __future__ import annotations
 import os
 from typing import Any, Dict, Optional
 
-from logger_util import log_event
+from .logger_util import log_event
 
 
 def supabase_client():

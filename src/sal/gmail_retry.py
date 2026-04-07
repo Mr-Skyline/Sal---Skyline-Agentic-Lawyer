@@ -7,7 +7,7 @@ from typing import Any
 
 from googleapiclient.errors import HttpError
 
-from config import GMAIL_RETRY_BASE_SEC, GMAIL_MAX_RETRIES
+from .config import GMAIL_RETRY_BASE_SEC, GMAIL_MAX_RETRIES
 
 
 def gmail_execute(request: Any, max_retries: int | None = None) -> Any:

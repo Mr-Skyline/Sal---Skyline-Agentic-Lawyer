@@ -8,8 +8,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from config import SKYLINE_REVIEW_DIR, review_state_subdir
-from db import insert_review_export_meta
+from .config import SKYLINE_REVIEW_DIR, review_state_subdir
+from .db import insert_review_export_meta
 
 
 def _slug(text: str, max_len: int = 48) -> str:

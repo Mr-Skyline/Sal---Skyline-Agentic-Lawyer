@@ -25,10 +25,10 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from config import ROOT
-from evidence import get_gmail_service
-from ingest import default_state_path, preview_sync_cc_threads, sync_cc_threads_once
-from logger_util import log_event
+from .config import ROOT
+from .evidence import get_gmail_service
+from .ingest import default_state_path, preview_sync_cc_threads, sync_cc_threads_once
+from .logger_util import log_event
 
 
 def main() -> None:

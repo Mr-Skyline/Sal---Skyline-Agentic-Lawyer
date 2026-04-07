@@ -12,8 +12,8 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from typing import Any, Dict, List, Optional, Tuple
 
-from gmail_retry import gmail_execute
-from logger_util import log_event
+from .gmail_retry import gmail_execute
+from .logger_util import log_event
 
 DISPUTE_LABEL_NAME = "Dispute Draft"
 

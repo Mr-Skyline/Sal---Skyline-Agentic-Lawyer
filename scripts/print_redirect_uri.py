@@ -1,11 +1,12 @@
-"""Print redirect URIs for Google Cloud (Web client). Run: py print_redirect_uri.py"""
+"""Print redirect URIs for Google Cloud (Web client). Run: py scripts/print_redirect_uri.py"""
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent
-sys.path.insert(0, str(ROOT))
+_SCRIPT_DIR = Path(__file__).resolve().parent
+_PROJECT_ROOT = _SCRIPT_DIR.parent
+sys.path.insert(0, str(_PROJECT_ROOT))
 
-from config import (  # noqa: E402
+from src.sal.config import (  # noqa: E402
     OAUTH_LOCAL_PORT,
     OAUTH_LOCAL_PORT_TRY_COUNT,
     OAUTH_LOOPBACK_HOST,

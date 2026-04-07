@@ -4,7 +4,7 @@ from __future__ import annotations
 import unittest
 from unittest.mock import MagicMock
 
-from analysis import friendly_sal_api_message
+from src.sal.analysis import friendly_sal_api_message
 from openai import (
     APIConnectionError,
     APIStatusError,

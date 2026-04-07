@@ -10,23 +10,26 @@ Removes existing token.pickle first, then opens the browser (or prints the URL i
 """
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent
+_SCRIPT_DIR = Path(__file__).resolve().parent
+_PROJECT_ROOT = _SCRIPT_DIR.parent
+sys.path.insert(0, str(_PROJECT_ROOT))
 
 
 def main() -> None:
     from dotenv import load_dotenv
 
-    load_dotenv(ROOT / ".env", override=True)
+    load_dotenv(_PROJECT_ROOT / ".env", override=True)
 
-    tok = ROOT / "token.pickle"
+    tok = _PROJECT_ROOT / "token.pickle"
     if tok.exists():
         tok.unlink()
         print("Removed old token.pickle")
 
-    from config import CREDENTIALS_FILE, OAUTH_OPEN_BROWSER, TOKEN_FILE
-    from evidence import get_gmail_service
+    from src.sal.config import CREDENTIALS_FILE, OAUTH_OPEN_BROWSER, TOKEN_FILE
+    from src.sal.evidence import get_gmail_service
 
     if not CREDENTIALS_FILE.exists():
         raise SystemExit(f"Missing credentials.json:\n  {CREDENTIALS_FILE.resolve()}")

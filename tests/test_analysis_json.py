@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import unittest
 
-from analysis import _normalize_sal_fields, _parse_sal_response_json
+from src.sal.analysis import _normalize_sal_fields, _parse_sal_response_json
 
 
 class TestParseSalResponseJson(unittest.TestCase):

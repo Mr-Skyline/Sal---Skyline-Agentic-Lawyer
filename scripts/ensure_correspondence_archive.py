@@ -11,7 +11,7 @@ from pathlib import Path
 
 
 def main() -> int:
-    root = Path(__file__).resolve().parent
+    root = Path(__file__).resolve().parent.parent
     archive = root / "correspondence_archive"
     archive.mkdir(parents=True, exist_ok=True)
 

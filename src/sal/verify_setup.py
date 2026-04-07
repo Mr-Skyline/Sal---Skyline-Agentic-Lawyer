@@ -28,7 +28,7 @@ def run_checks() -> SetupStatus:
     grok_and_credentials_ok: XAI key + credentials.json (can start OAuth).
     gmail_api_ok: above + token.pickle (Gmail API calls will work).
     """
-    from config import (
+    from .config import (
         AGENT_GMAIL_ADDRESS,
         CORRESPONDENCE_ARCHIVE_DIR,
         CREDENTIALS_FILE,

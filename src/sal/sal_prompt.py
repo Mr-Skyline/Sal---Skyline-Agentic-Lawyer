@@ -8,9 +8,9 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-from config import ROOT
+from .config import ROOT
 
-_DEFAULT_FILENAME = "Skyline Lawyer – Full System Prompt.txt"
+_DEFAULT_FILENAME = os.path.join("prompts", "Skyline Lawyer – Full System Prompt.txt")
 _PHASE8_MARKER = "**Phase 8"
 _SAL_ANCHOR = "**Sal —"
 

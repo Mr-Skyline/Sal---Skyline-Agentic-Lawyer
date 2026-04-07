@@ -13,7 +13,7 @@ from typing import Any, Dict, Optional
 
 from openai import OpenAI
 
-from config import (
+from .config import (
     API_BASE_DELAY_SEC,
     API_MAX_RETRIES,
     GROK_BASE_URL,
@@ -21,8 +21,8 @@ from config import (
     JOB_SITE_STATE_CODES,
     normalize_primary_state,
 )
-from logger_util import log_event
-from sal_prompt import (
+from .logger_util import log_event
+from .sal_prompt import (
     json_tool_contract_suffix,
     load_sal_behavioral_text,
     run_mode_suffix,
@@ -56,6 +56,104 @@ SYSTEM_PROMPT_BUSINESS = (
     "otherwise use an empty string. This value is only used to separate stored records by state—not a "
     "legal determination. No markdown fences, only valid JSON."
 )
+
+
+_JSON_OBJ_RE = re.compile(r"\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}")
+
+
+def _parse_sal_response_json(raw: str) -> tuple[Dict[str, Any], str]:
+    """Parse Grok's response text into a dict, tolerating markdown fences, BOM, and prose preamble.
+
+    Returns (data_dict, mode) where mode is "direct" if the whole text was valid JSON
+    or "extracted" if we found JSON inside surrounding prose.
+    Raises RuntimeError on unparseable or non-object JSON.
+    """
+    text = raw.strip()
+    if text.startswith("\ufeff"):
+        text = text.lstrip("\ufeff")
+    if text.startswith("```"):
+        text = re.sub(r"^```(?:json)?\s*", "", text, flags=re.IGNORECASE)
+        text = re.sub(r"\s*```\s*$", "", text)
+    text = text.strip()
+
+    try:
+        data = json.loads(text)
+        if isinstance(data, list):
+            raise RuntimeError(
+                "Grok returned a JSON array, but a JSON object is required. "
+                "Retry or adjust the prompt."
+            )
+        return data, "direct"
+    except json.JSONDecodeError:
+        pass
+
+    match = _JSON_OBJ_RE.search(text)
+    if match:
+        try:
+            data = json.loads(match.group(0))
+            if isinstance(data, list):
+                raise RuntimeError(
+                    "Grok returned a JSON array, but a JSON object is required."
+                )
+            return data, "extracted"
+        except json.JSONDecodeError:
+            pass
+
+    preview = (text[:280] + "…") if len(text) > 280 else text
+    raise RuntimeError(
+        "Grok returned content that is not valid JSON. Try again, shorten evidence, "
+        f"or switch model. Raw preview: {preview!r}"
+    )
+
+
+def _normalize_sal_fields(data: Dict[str, Any]) -> None:
+    """Normalize Grok response fields in place so downstream code gets consistent types."""
+    if "draft_body" not in data:
+        data["draft_body"] = data.pop("reply", "") or ""
+    if data.get("draft_body") is None:
+        data["draft_body"] = ""
+    if data.get("analysis") is None:
+        data["analysis"] = ""
+    cites = data.get("citations")
+    if cites is None:
+        data["citations"] = []
+    elif isinstance(cites, str):
+        data["citations"] = [cites] if cites.strip() else []
+
+
+def friendly_sal_api_message(exc: BaseException) -> str:
+    """Return a user-friendly one-liner for common xAI / OpenAI SDK errors."""
+    from openai import (
+        APIConnectionError,
+        APIStatusError,
+        APITimeoutError,
+        AuthenticationError,
+        InternalServerError,
+        RateLimitError,
+    )
+
+    cause = exc.__cause__ if exc.__cause__ else exc
+
+    if isinstance(cause, AuthenticationError):
+        return "API key rejected — check XAI_API_KEY in .env."
+    if isinstance(cause, RateLimitError):
+        return "Rate limit hit — wait a moment and retry."
+    if isinstance(cause, APITimeoutError):
+        return "Timeout — Grok did not respond in time. Try again."
+    if isinstance(cause, APIConnectionError):
+        return "Connection failed — check network or xAI status."
+    if isinstance(cause, InternalServerError):
+        code = getattr(getattr(cause, "response", None), "status_code", "")
+        return f"Grok server error ({code}) — retry shortly."
+    if isinstance(cause, APIStatusError):
+        code = getattr(getattr(cause, "response", None), "status_code", "")
+        return f"Grok API error ({code}) — check xAI dashboard."
+    if isinstance(exc, RuntimeError):
+        msg = str(exc)
+        if "empty response" in msg.lower() or "no completion" in msg.lower():
+            return "Grok returned no completion choices (empty response). Retry or check model availability."
+        return msg
+    return str(exc)
 
 
 @lru_cache(maxsize=1)
