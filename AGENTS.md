@@ -51,7 +51,7 @@ This file stays short; **AGENT_TEAM_CHECKLIST.md** is the source of truth for pr
 
 - `python smoke_check.py` — fast import sweep, no network calls.
 - `python verify_setup.py` — environment diagnostics (non-strict passes without Gmail creds).
-- `pytest` — **currently fails** with `ImportError` because `tests/test_analysis_json.py` and `tests/test_friendly_sal_api.py` import functions (`_normalize_sal_fields`, `_parse_sal_response_json`, `friendly_sal_api_message`) that do not exist in `analysis.py`. This is a pre-existing codebase issue, not an environment problem.
+- `pytest` — runs Sal JSON parsing and friendly API error message tests (no live Grok calls).
 
 ### Hello world (Grok/Sal analysis without Gmail)
 
