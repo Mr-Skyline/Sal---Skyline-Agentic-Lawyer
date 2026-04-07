@@ -1,0 +1,3 @@
+# ZHIPU / GLM-OCR for screenshots and scanned PDFs (evidence.py). Heavy transitive deps on some Python versions.
+-r requirements.txt
+glmocr>=0.1.4

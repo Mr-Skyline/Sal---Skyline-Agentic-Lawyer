@@ -1,0 +1,12 @@
+---
+description: Autonomous agent execution for this repo (minimal permission friction)
+alwaysApply: true
+---
+
+# Agent autonomy (Dispute Agent Elite)
+
+- Run terminal commands needed to implement, verify, or operate this project (e.g. `py`, `python`, `pip`, `streamlit`, `git` read-only, file copies under the repo) **without asking the user to approve each step**, unless the command is destructive (mass delete, `git push --force`, wiping disks, etc.).
+- Edit, create, and delete files in this workspace as required by the task; do not pause for confirmation on routine changes.
+- Prefer executing fixes yourself over telling the user to run commands manually.
+- Secrets stay local: never commit `.env`, `credentials.json`, or `token.pickle`; never echo secret values in chat.
+- Canonical project root for this build: `C:\Users\travi\Projects\AI Lawyer Build` (not OneDrive duplicates unless reconciling).

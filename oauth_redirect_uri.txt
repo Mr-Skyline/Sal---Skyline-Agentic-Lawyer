@@ -1,0 +1,23 @@
+The app uses a default OAuth port of 8765 (not 8090) to avoid "port already in use" on Windows.
+It may use 8765, 8766, 8767, 8768, or 8769 if earlier ports are busy.
+
+Add ALL of these under Authorized redirect URIs (Web client) — exact text:
+
+http://localhost:8765/
+http://127.0.0.1:8765/
+http://localhost:8766/
+http://127.0.0.1:8766/
+http://localhost:8767/
+http://127.0.0.1:8767/
+http://localhost:8768/
+http://127.0.0.1:8768/
+http://localhost:8769/
+http://127.0.0.1:8769/
+
+Override in .env: OAUTH_LOCAL_PORT=... and OAUTH_LOCAL_PORT_TRY_COUNT=...
+Then register matching http://localhost:PORT/ lines for each port in the range.
+
+Where: Google Cloud → APIs & Services → Credentials → your OAuth Web client
+→ Authorized redirect URIs (NOT JavaScript origins) → Save
+
+Run: py print_redirect_uri.py  (prints the list from your current .env)

@@ -1,0 +1,57 @@
+OAuth fix order: Option B (this file), then Option C if Google still shows redirect_uri_mismatch.
+
+================================================================================
+OPTION B — Web client + localhost loopback (try this first)
+================================================================================
+
+1) In THIS project folder, .env must include (no quotes):
+   OAUTH_LOOPBACK_HOST=localhost
+
+2) Google Cloud Console (same project as credentials.json project_id):
+   https://console.cloud.google.com/apis/credentials?project=sal-skyline-agentic-lawyer-int
+
+   Open the OAuth 2.0 Client ID that matches your credentials.json client_id.
+
+   Under "Authorized redirect URIs", add EVERY line below (exact, trailing /):
+
+   http://localhost:8765/
+   http://localhost:8766/
+   http://localhost:8767/
+   http://localhost:8768/
+   http://localhost:8769/
+
+   Click SAVE. Wait 1–2 minutes.
+
+3) Optional but recommended: add OAUTH_OPEN_BROWSER=0 to .env so the auth URL
+   prints in the terminal; paste it into Chrome or Edge (avoids wrong browser).
+
+4) From this folder:
+   del token.pickle
+   py oauth_login.py
+
+5) In the browser error page, "error details" shows the exact redirect_uri Google
+   received — that string must appear in Authorized redirect URIs.
+
+================================================================================
+OPTION C — Desktop OAuth client (if Option B still fails)
+================================================================================
+
+1) Google Cloud → APIs & Services → Credentials → Create Credentials →
+   OAuth client ID → Application type: Desktop app → Create.
+
+2) Download the JSON. It contains an "installed" { ... } block (not "web").
+
+3) Back up your current credentials.json (rename to credentials.web.json).
+
+4) Save the downloaded file as credentials.json in this project folder.
+   Important: the file should use ONLY "installed" — do not merge an old "web"
+   block into the same file (if both exist, the app prefers "web").
+
+5) Delete token.pickle if present.
+
+6) Run: py oauth_login.py
+
+   Desktop clients do not need you to list http://localhost:8765/ etc. in
+   Authorized redirect URIs the same way as Web clients.
+
+7) Gmail API must still be enabled in the same project.

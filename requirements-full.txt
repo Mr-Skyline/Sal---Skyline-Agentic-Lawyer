@@ -1,0 +1,4 @@
+# Core + OCR + Supabase. Prefer Python 3.11–3.12 on Windows if pip fails (missing wheels / MSVC).
+-r requirements.txt
+glmocr>=0.1.4
+supabase>=2.4.0

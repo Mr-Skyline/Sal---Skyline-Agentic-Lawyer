@@ -1,0 +1,10 @@
+# Core: Streamlit UI, Gmail API, Grok. Use Python 3.11 or 3.12 for the fewest Windows wheel issues.
+# Optional: requirements-ocr.txt (image/PDF OCR), requirements-supabase.txt (metadata upserts),
+#           or requirements-full.txt for everything at once.
+google-api-python-client>=2.100.0
+google-auth-oauthlib>=1.1.0
+google-auth-httplib2>=0.2.0
+openai>=1.40.0
+streamlit>=1.28.0
+python-dotenv>=1.0.0
+python-docx>=1.1.0

@@ -1,0 +1,74 @@
+Google OAuth for Gmail (Desktop app) — step by step
+====================================================
+
+You need: a Google Cloud project, Gmail API enabled, OAuth consent configured,
+and a "Desktop app" client. Your project already has credentials.json if you
+followed earlier setup; use Part B to sign in. Use Part A only if starting fresh.
+
+
+PART A — Google Cloud Console (first-time or new machine)
+----------------------------------------------------------
+
+1) Open https://console.cloud.google.com/ and select a project (or create one).
+
+2) Enable Gmail API
+   - APIs & Services → Library → search "Gmail API" → Enable.
+
+3) OAuth consent screen
+   - APIs & Services → OAuth consent screen.
+   - User type: usually "Internal" (Workspace) or "External" (personal / testing).
+   - Fill app name, support email, developer contact.
+   - Scopes: "Add or remove scopes" → filter "Gmail" → add
+     https://www.googleapis.com/auth/gmail.modify
+     (or add gmail.readonly + gmail.compose if you prefer minimal; this app expects modify.)
+   - Save.
+
+4) If the app is in "Testing" (External):
+   - OAuth consent screen → Audience → Test users → Add users.
+   - Add: sal@skylinepainting.co (and any account you will sign in with).
+
+5) Create credentials
+   - APIs & Services → Credentials → Create credentials → OAuth client ID.
+   - Application type: Desktop app.
+   - Name it (e.g. "Elite Counsel Desktop") → Create.
+   - Download JSON → save as credentials.json in your project folder:
+       C:\Users\travi\Projects\AI Lawyer Build\credentials.json
+     (Replace the file; do not commit to git — it is in .gitignore.)
+
+6) Confirm .env has nothing conflicting; XAI keys are separate from Google.
+
+
+PART B — Sign in from the app (creates token.pickle)
+----------------------------------------------------
+
+1) Put credentials.json in the project folder (same folder as main.py).
+
+2) Start the app (your launcher or: run.cmd / streamlit run main.py).
+
+3) In the browser UI, click "Analyze & Draft" or "Create Gmail Draft"
+   (that triggers Gmail and opens OAuth if needed).
+
+4) A browser window opens → choose Google account:
+   use sal@skylinepainting.co (your agent mailbox).
+
+5) If Google warns "Google hasn't verified this app":
+   - For your own project: Advanced → Go to … (unsafe) — normal for internal/testing.
+
+6) Accept the Gmail permission (gmail.modify).
+
+7) After success, the app creates token.pickle next to credentials.json.
+   Run "Run setup check" in the sidebar → token.pickle should show "ok".
+
+8) Restart the app only if keys in .env changed; token.pickle persists until revoked.
+
+
+PART C — Troubleshooting
+------------------------
+
+- redirect_uri_mismatch: Client must be type "Desktop app", not Web.
+- Access blocked / Error 403: Add the Google account as a Test user (Testing mode),
+  or publish the app / use Internal user type for Workspace.
+- Wrong mailbox: Sign out of Google in the browser or use a private window and
+  repeat OAuth, picking sal@skylinepainting.co.
+- Revoke access: https://myaccount.google.com/permissions → remove the app;
+  delete token.pickle and sign in again.

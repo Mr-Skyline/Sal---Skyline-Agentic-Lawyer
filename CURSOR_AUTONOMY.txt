@@ -1,0 +1,17 @@
+Fewer "Allow" prompts in Cursor
+===============================
+
+1) Turn on Agent auto-run (required for allowlists to apply):
+   Cursor Settings (Ctrl+Shift+J) → Agent → enable Auto-Run
+   (e.g. "Auto-Run in Sandbox" or "Run Everything", depending on your version).
+
+2) Terminal / MCP allowlist (already created on this machine):
+   File:  %USERPROFILE%\.cursor\permissions.json
+   Edit that JSON to add or remove command prefixes. If you define terminalAllowlist
+   here, it replaces the in-app terminal allowlist entirely (Cursor docs).
+
+3) Project rule for the AI:
+   .cursor/rules/agent-autonomy.mdc  (in this repo)
+
+This repo's scripts no longer use "pause" in bootstrap_venv.cmd so automation
+and agents are not blocked waiting for a keypress.

@@ -1,0 +1,14 @@
+---
+description: Mandatory — read AGENT_TEAM_CHECKLIST.md before work; extend it when adding durable steps
+alwaysApply: true
+---
+
+# Agent team checklist (gate)
+
+1. **Start of session or new task:** Read **`AGENT_TEAM_CHECKLIST.md`** at the repo root (full file or headers + §2 + changelog). Treat it as the running playbook for this codebase.
+2. **Multiple agents / subagents:** Follow checklist **§2 Lanes** — claim a lane, avoid redoing another agent’s research or duplicate edits; subagents summarize; parent integrates unless the user delegated implementation to one agent only.
+3. **Before edits or substantive advice:** Align with *Before you proceed* and any section that matches the task (env, Sal/Grok, paths).
+4. **When you discover a new repeatable step** (script, env var, failure mode, review gate): **add** a concise bullet under the right section in `AGENT_TEAM_CHECKLIST.md`, keep ordering logical, avoid duplicates, and **append one row** to the changelog table with today’s date (use workspace/user date if provided).
+5. **Partial stop:** Leave the **handoff block** spelled out in checklist §6 so the next agent does not overlap or repeat work.
+6. **Conflict:** If this file and another doc disagree, prefer **this checklist** after verifying against code; then fix the stale doc or checklist in the same change.
+7. **Sal delegated:** If the user assigned **Sal** (prompt file, `sal_prompt.py`, Sal-related `analysis.py`) to **another agent**, defer those edits unless re-routed; still **append §7 Changelog** when team process or env steps change.
