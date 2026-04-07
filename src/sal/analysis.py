@@ -241,24 +241,11 @@ def analyze_and_draft(
             )
             usage = getattr(resp, "usage", None)
 
+            if not resp.choices:
+                raise RuntimeError("Grok returned no completion choices (empty response).")
             text = (resp.choices[0].message.content or "{}").strip()
-            if text.startswith("```"):
-                text = re.sub(r"^```(?:json)?\s*", "", text, flags=re.IGNORECASE)
-                text = re.sub(r"\s*```\s*$", "", text)
-            try:
-                data = json.loads(text)
-            except json.JSONDecodeError as e:
-                preview = (text[:280] + "…") if len(text) > 280 else text
-                raise RuntimeError(
-                    "Grok returned content that is not valid JSON. Try again, shorten evidence, "
-                    f"or switch model. Raw preview: {preview!r}"
-                ) from e
-            if "draft_body" not in data:
-                data["draft_body"] = data.get("reply", "") or ""
-            if "analysis" not in data:
-                data["analysis"] = ""
-            if "citations" not in data:
-                data["citations"] = []
+            data, _parse_mode = _parse_sal_response_json(text)
+            _normalize_sal_fields(data)
             inferred = normalize_primary_state(data.get("primary_state"))
             data["primary_state"] = forced_state if forced_state else inferred
             extra = {"model": model, "assistant_profile": assistant_profile}
