@@ -49,8 +49,29 @@ This file stays short; **AGENT_TEAM_CHECKLIST.md** is the source of truth for pr
 - `python verify_setup.py` — environment diagnostics (non-strict passes without Gmail creds).
 - `pytest` — **currently fails** with `ImportError` because `tests/test_analysis_json.py` and `tests/test_friendly_sal_api.py` import functions (`_normalize_sal_fields`, `_parse_sal_response_json`, `friendly_sal_api_message`) that do not exist in `analysis.py`. This is a pre-existing codebase issue, not an environment problem.
 
+### Hello world (Grok/Sal analysis without Gmail)
+
+To verify the `XAI_API_KEY` and Grok pipeline work without Gmail credentials:
+
+```python
+from analysis import analyze_and_draft
+import json, os
+from dotenv import load_dotenv
+load_dotenv('.env', override=True)
+
+result = analyze_and_draft(
+    json.dumps([{"source": "test", "text": "Sample evidence text."}]),
+    "Summary of the dispute.",
+    assistant_profile="dispute",
+    state_hint="CO",
+)
+```
+
+This exercises `analysis.py` → `sal_prompt.py` → xAI Grok API → JSON parse → result dict. The Streamlit "Analyze & draft" button additionally calls `evidence.py` (Gmail fetch) first, so it requires `credentials.json` + `token.pickle`.
+
 ### Gotchas
 
 - The `.cmd` / `.ps1` scripts in the repo are Windows-only; use the Linux equivalents above.
 - Gmail OAuth (`oauth_login.py`) requires a browser and `credentials.json` from Google Cloud Console — this cannot be completed in headless Cloud Agent VMs. The Streamlit UI still loads and shows alerts for missing credentials.
+- The Streamlit "Analyze & draft" form always tries Gmail fetch before calling Grok. To test Grok analysis in isolation, call `analyze_and_draft()` directly from Python (see hello world above).
 - Optional extras: `requirements-ocr.txt` (ZHIPU OCR), `requirements-supabase.txt` (metadata DB). Neither is needed for core dev/testing.
