@@ -21,7 +21,7 @@ Run `py verify_setup.py` from this folder.
 3. **Gmail:** add Google OAuth **Desktop** client JSON as `credentials.json`, then `py oauth_login.py`.
 4. **Run:** `py -m streamlit run main.py`
 
-More detail: **`OPERATIONS_ELITE.txt`**, build checklist: **`SKYLINE_BUILD_REVIEW.md`**.
+More detail: **`docs/OPERATIONS_ELITE.txt`**, build checklist: **`docs/SKYLINE_BUILD_REVIEW.md`**.
 
 ## Tests
 

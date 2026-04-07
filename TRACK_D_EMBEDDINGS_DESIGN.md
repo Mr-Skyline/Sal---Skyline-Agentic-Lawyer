@@ -50,7 +50,7 @@ Final chunk sizes depend on the chosen embedding model’s context limit and cos
 ## Privacy & boundaries
 
 - **No legal conclusions in embedding pipelines:** Classifiers or tags derived from embeddings must not be presented as “deadline” or “outcome” advice; they are search aids only.
-- **Minimize retention of vectors:** If vectors are dropped when matters close, document that in the written retention policy (counsel-owned checklist in `SKYLINE_BUILD_REVIEW.md`).
+- **Minimize retention of vectors:** If vectors are dropped when matters close, document that in the written retention policy (counsel-owned checklist in `docs/SKYLINE_BUILD_REVIEW.md`).
 - **Third-party APIs:** If embeddings run outside the firm’s Supabase/tenant, record **what text leaves the boundary**, logging redaction options, and whether zero-retention / BAA-style terms apply (business/legal, not coded here).
 
 ---
@@ -66,6 +66,6 @@ Final chunk sizes depend on the chosen embedding model’s context limit and cos
 
 ## References
 
-- Phase table: `SKYLINE_BUILD_REVIEW.md`
+- Phase table: `docs/SKYLINE_BUILD_REVIEW.md`
 - Metadata schema: `supabase_schema.sql`
-- Ops: `OPERATIONS_ELITE.txt`, `verify_setup.py --supabase-ping`
+- Ops: `docs/OPERATIONS_ELITE.txt`, `verify_setup.py --supabase-ping`

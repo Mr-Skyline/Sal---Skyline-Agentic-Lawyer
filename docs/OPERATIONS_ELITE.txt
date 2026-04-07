@@ -1,0 +1,121 @@
+Elite Business Counsel — operations (dedicated inbox + archive + optional DB)
+================================================================================
+
+Canonical project folder: C:\Users\travi\Projects\AI Lawyer Build
+(Run all commands below from that directory.)
+
+
+0d) REPOSITORY LAYOUT (this Git tree)
+   - docs/ — release checklist (SKYLINE_BUILD_REVIEW.md), this runbook (OPERATIONS_ELITE.txt), and other long-form product notes.
+   - scripts/ — optional Windows/cmd helpers and one-off ops scripts (keep Task Scheduler paths pointed at project root).
+   - src/sal/ — reserved for future packaging of Sal helpers; Sal loading remains sal_prompt.py at repo root for now.
+
+0) CANONICAL WORKSTATION
+   - Treat this path as the only source of truth for credentials.json, token.pickle, .env, and SKYLINE_REVIEW_DIR.
+   - py verify_setup.py warns if the current folder is not INTENDED_PROJECT_ROOT (wrong directory or an old copy). Open Cursor and terminals only under C:\Users\travi\Projects\AI Lawyer Build (AGENT_TEAM_CHECKLIST.md).
+
+0a) FIRST RUN (typical order — Streamlit + Grok + Gmail)
+   1. cd to the canonical folder above
+   2. bootstrap_venv.cmd  (or py -3.12 -m venv .venv && .venv\Scripts\pip install -r requirements.txt)
+   3. .env from SECRETS_TEMPLATE.txt: at least XAI_API_KEY; place Gmail Desktop OAuth JSON as credentials.json
+   4. py oauth_login.py  (browser; writes token.pickle here)
+   5. py verify_setup.py --strict   (exit 1 = fix stderr: key, credentials, or token)
+   6. streamlit run main.py  (or run.cmd)
+   Optional: pip install -r requirements-supabase.txt → supabase_schema.sql in dashboard → py verify_setup.py --supabase-ping (exit 2 if ping fails)
+   Optional: AGENT_GMAIL_ADDRESS + CORRESPONDENCE_ARCHIVE_DIR → py sync_worker.py --dry-run then --once
+
+0b) QUICK FAILURE INDEX
+   A) "not canonical root" in verify_setup → duplicate clone; open the Projects path or reconcile copies.
+   B) verify_setup --strict exits 1 → missing XAI_API_KEY, credentials.json, and/or token.pickle; run py oauth_login.py from this folder.
+   C) Gmail errors after token worked → re-run oauth_login.py; dispute_agent_log.jsonl for GmailEvidenceError / pipeline_error.
+   D) verify_setup.py --supabase-ping exits 2 → install requirements-supabase.txt; set SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY; run supabase_schema.sql (both tables).
+   E) sync_worker fails → writable CORRESPONDENCE_ARCHIVE_DIR; AGENT_GMAIL_ADDRESS matches token.pickle account; py sync_worker.py --dry-run first.
+   F) Grok / Sal errors → Technical tab JSON; dispute_agent_log.jsonl (sal_run_error).
+
+0c) SHIPPED VS ROADMAP (truth for operators — do not over-promise)
+   Shipped: Streamlit intake + Gmail evidence + Sal (Grok) + review Markdown under SKYLINE_REVIEW_DIR; optional Supabase metadata only (thread upserts + review-export audit rows); sync_worker polling with --once / --dry-run / Task Scheduler; manual retention (no product auto-delete).
+   Not shipped: Vector embeddings / RAG; Gmail Pub/Sub push; proactive alerts beyond polling; automatic destruction of matter files. Prompt phases 6–8 and docs/SKYLINE_BUILD_REVIEW.md list roadmap until marked done.
+
+1) STREAMLIT (interactive drafting)
+   - New venv: run bootstrap_venv.cmd from the canonical folder (prefers Python 3.12 / 3.11).
+   - pip install -r requirements.txt (core); optional extras: requirements-ocr.txt, requirements-supabase.txt, or requirements-full.txt
+   - Quick health: py smoke_check.py ; py env_check.py ; py verify_setup.py
+   - streamlit run main.py   OR run.cmd   OR your desktop launcher
+   - Choose "Elite business counsel" vs "Dispute" profile before Analyze.
+   - UI states clearly: output is NOT legal advice.
+
+2) DEDICATED GMAIL FOR THE AGENT
+   - Create a mailbox only for this automation (e.g. counsel.agent@...).
+   - Google Cloud OAuth "Desktop" client -> credentials.json in project folder.
+   - Sign in once with THAT mailbox so token.pickle matches the agent account.
+   - Humans CC or To that address on threads you want captured.
+
+3) CONTINUOUS SYNC (24/7 style) — disk + optional DB
+   WHAT HITS DISK
+   - Thread JSON: CORRESPONDENCE_ARCHIVE_DIR\<gmail_thread_id>.json (one file per archived thread).
+   - Poll state: correspondence_sync_state.json in project root (last internalDate per thread), written atomically.
+   WHAT HITS SUPABASE (only if URL + service key in .env)
+   - Table correspondence_threads: metadata upsert per new/updated archive (see db.py / ingest.py).
+   SET .env
+       AGENT_GMAIL_ADDRESS=the agent's email
+       CORRESPONDENCE_ARCHIVE_DIR=folder or UNC path (mapped share drive is fine)
+       SYNC_POLL_INTERVAL_SEC=300   (or similar)
+       SYNC_NEWER_THAN_DAYS=7       (Gmail query window)
+       Optional loop tuning: SYNC_WORKER_BACKOFF_CAP_SEC, SYNC_WORKER_MAX_CONSECUTIVE_ERRORS (see .env.example)
+   - Optional local archive bootstrap: py ensure_correspondence_archive.py
+   - Preview what would sync (Gmail API; no disk/DB writes; archive dir not required): py sync_worker.py --dry-run
+   - Test one cycle: py sync_worker.py --once   OR   sync_worker_once.cmd   (exit 1 if that cycle errors — Task Scheduler)
+   - Always on: py sync_worker.py   (backoff between errors; optional max consecutive failures then exit)
+
+   WINDOWS TASK SCHEDULER (polling every N minutes)
+   - General tab: choose “Run whether user is logged on or not” if the job must run unattended;
+     the account must be able to read credentials.json + token.pickle and write the archive path.
+   - Triggers: Daily / repeat task every 5–15 minutes (or your policy), duration “Indefinitely”.
+   - Actions → Start a program:
+       Program/script:  C:\Windows\System32\cmd.exe
+       Add arguments:     /d /s /c "C:\Users\travi\Projects\AI Lawyer Build\sync_worker_once.cmd"
+       Start in:          C:\Users\travi\Projects\AI Lawyer Build
+     (Adjust the path if your canonical folder differs; keep “Start in” = project root so .env resolves.)
+   - Conditions: uncheck “Start only if on AC power” if this is a laptop you care about on battery.
+   - History: enable “Task History” in Task Scheduler to see exit codes; exit 0 = normal from the .cmd.
+   - sync_worker_once.cmd is non-interactive (no pause). For a long loop instead of scheduled --once,
+     use py sync_worker.py as a logged-in session or a service wrapper you maintain separately.
+
+   LOGS & TROUBLESHOOTING (data plane)
+   - JSONL log (project root): dispute_agent_log.jsonl — one JSON object per line.
+       Search for:  sync_worker_error  |  ingest_sync_once  |  ingest_sync_preview
+                    |  supabase_correspondence_upsert_skipped  |  supabase_review_export_insert_skipped
+       sync_worker_error may include extra.consecutive_failures in loop mode.
+   - Re-check env: py verify_setup.py   and, if using Supabase,   py verify_setup.py --supabase-ping
+   - Gmail auth: token.pickle must be for the same mailbox as AGENT_GMAIL_ADDRESS (re-run py oauth_login.py
+     from the project folder if refresh fails).
+   - Operator smoke test: py sync_worker.py --dry-run must succeed (Gmail auth) before relying on Task Scheduler.
+
+4) SUPABASE (optional index) — schema first, then ping
+   - Order: (1) Supabase SQL editor → run full supabase_schema.sql (both tables).
+            (2) pip install -r requirements-supabase.txt
+            (3) .env: SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY (worker only; never in browsers)
+            (4) py verify_setup.py --supabase-ping  → lines like "supabase ping: correspondence_threads: read ok";
+                exit code 2 if a "supabase ping: FAIL" line appears
+   - correspondence_threads: sync_worker upserts when it writes JSON archives.
+   - skyline_review_exports: Streamlit review-export path inserts metadata only (filename + state folder).
+   - If ping fails, check in order:
+       (1) supabase_schema.sql run completely in SQL editor (both tables).
+       (2) SUPABASE_URL matches the project (https://xxxx.supabase.co).
+       (3) Key is service role, not anon; not expired or rotated.
+       (4) pip install -r requirements-supabase.txt in the same venv Task Scheduler uses (if scheduled).
+       (5) Network / firewall to *.supabase.co
+
+4b) OCR (optional)
+   - pip install -r requirements-ocr.txt when using ZHIPU / GLM-OCR for images and PDFs.
+   - Prefer Python 3.11–3.12 on Windows if pip fails on heavy transitive deps.
+
+5) SECURITY
+   - Rotate any API key ever pasted into chat.
+   - Restrict share-drive ACLs to people who may see privileged content.
+   - This stack is an assistant, not a substitute for counsel or compliance review.
+
+6) NEXT IDEAS (not implemented yet)
+   - Gmail Pub/Sub push instead of polling
+   - RAG over archives + embeddings in Supabase
+   - Microsoft Graph for pure-M365 tenants

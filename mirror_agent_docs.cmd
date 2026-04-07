@@ -2,7 +2,7 @@
 REM Sync agent-facing docs + Cursor rules with the canonical stack (INTENDED_PROJECT_ROOT).
 REM Edit STACK below if config.py INTENDED_PROJECT_ROOT ever changes.
 REM NOT copied here (reconcile manually across two working trees if needed):
-REM   SKYLINE_BUILD_REVIEW.md, OPERATIONS_ELITE.txt, TRACK_D_*.md, application .py files.
+REM   docs/SKYLINE_BUILD_REVIEW.md, docs/OPERATIONS_ELITE.txt, TRACK_D_*.md, application .py files.
 setlocal
 set "STACK=C:\Users\travi\Projects\AI Lawyer Build"
 set "HERE=%~dp0"
