@@ -8,7 +8,7 @@ Use this during implementation passes. Update dates and notes as releases ship.
 
 ## Canonical project root (this machine)
 
-**`C:\Users\travi\Projects\AI Lawyer Build`** is the only active project tree for this build. Run Streamlit, `oauth_login.py`, `sync_worker.py`, and `verify_setup.py` from that folder so `credentials.json`, `token.pickle`, `.env`, and `SKYLINE_REVIEW_DIR` stay consistent. Avoid keeping a second “shadow” copy elsewhere (e.g. cloud-sync folders) unless you are explicitly reconciling it — duplicate trees confuse paths and OAuth tokens. The same path is defined in code as `INTENDED_PROJECT_ROOT` in `config.py` (for `verify_setup` warnings).
+**`C:\Users\travi\Projects\AI Lawyer Build`** is the **only** project tree for this build. Run Streamlit, `oauth_login.py`, `sync_worker.py`, and `verify_setup.py` from that folder so `credentials.json`, `token.pickle`, `.env`, and `SKYLINE_REVIEW_DIR` stay consistent. Do **not** maintain a second working copy elsewhere — duplicate folders break paths, OAuth, and Git. The same path is `INTENDED_PROJECT_ROOT` in `config.py` (for `verify_setup` warnings).
 
 ---
 

@@ -10,7 +10,9 @@ Intended active root (also `INTENDED_PROJECT_ROOT` in `config.py`):
 
 `C:\Users\travi\Projects\AI Lawyer Build`
 
-Open Cursor and terminals there. Run `py verify_setup.py` from this folder.
+**Use this folder only.** Open Cursor with **File → Open Folder** pointed here, run every terminal and script from here, and do **not** keep a second working copy elsewhere (duplicate trees break OAuth paths, `.env`, and Git).
+
+Run `py verify_setup.py` from this folder.
 
 ## Quick setup
 

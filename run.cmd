@@ -1,7 +1,7 @@
 @echo off
 REM Elite Business Counsel — launches Streamlit from this script's folder.
 REM ONLY active build location: C:\Users\travi\Projects\AI Lawyer Build
-REM Do not use a second copy (e.g. OneDrive Desktop) for day-to-day work — keep one tree.
+REM Do not use a second project copy for day-to-day work — this folder is the only tree.
 setlocal
 cd /d "%~dp0"
 

@@ -36,8 +36,7 @@
 
 ## 3. Environment & diagnostics
 
-- [ ] **Agent docs vs canonical stack:** If this workspace is not `INTENDED_PROJECT_ROOT` (`config.py`), run **`mirror_agent_docs.cmd`** from repo root to push `AGENTS.md`, `AGENT_TEAM_CHECKLIST.md`, and `.cursor/rules/*.mdc` into `C:\Users\travi\Projects\AI Lawyer Build`. For a backup pull from the stack into the current folder, run **`mirror_agent_docs.cmd backup`**.
-- [ ] **`mirror_agent_docs.cmd` does not copy** `SKYLINE_BUILD_REVIEW.md`, `OPERATIONS_ELITE.txt`, `TRACK_D_*.md`, or application code. If you maintain **two working trees**, reconcile those files manually or with an explicit copy so ops/review docs do not drift.
+- [ ] **Single workspace:** Open Cursor and terminals **only** under `C:\Users\travi\Projects\AI Lawyer Build` (`INTENDED_PROJECT_ROOT`). If you ever opened a different folder by mistake, **`mirror_agent_docs.cmd`** can copy `AGENTS.md`, `AGENT_TEAM_CHECKLIST.md`, and `.cursor/rules/*.mdc` into that path (or `backup` from it) — it does **not** copy app code or `SKYLINE_BUILD_REVIEW.md` / `OPERATIONS_ELITE.txt`; prefer fixing the workspace path instead of two trees.
 - [ ] To verify Grok env loading without exposing the key: run `env_check.py` via `.venv\Scripts\python.exe` or `EnvCheck.ps1` / `env_check.cmd` from project root (see repo root files).
 - [ ] Core deps: `requirements.txt`; OCR / Supabase: optional requirement files as documented in `bootstrap_venv.cmd` output.
 - [ ] Optional env vars: see `.env.example` (`XAI_API_KEY`, `GROK_MODEL`, `GROK_MAX_OUTPUT_TOKENS`, `SAL_PROMPT_PATH`, Gmail/OAuth, Supabase, etc.).
@@ -89,3 +88,4 @@
 | 2026-04-11 | Agent 3 roadmap     | `SKYLINE_BUILD_REVIEW.md`: phase A–E aligned to code, Last reviewed, Track D pointer; `TRACK_D_EMBEDDINGS_DESIGN.md`; statute/retention product vs counsel + handoff table for Agents 1–2. |
 | 2026-04-11 | Agent 3 runbook     | `OPERATIONS_ELITE.txt`: first-run order, troubleshooting index, shipped vs roadmap; canonical `SKYLINE` note; `AGENTS.md` ops row; `main.py` caption under dedicated inbox (truth vs roadmap). |
 | 2026-04-12 | Agent 3 playbook    | §2 Agent 3 lane; §3 `mirror_agent_docs` exclusions; §4 Sal stack wording (`load_sal_behavioral_text` + `sal_prompt` JSON/mode suffixes + `analysis.py` compose); `mirror_agent_docs.cmd` REM for non-mirrored files. |
+| 2026-04-12 | Single project root   | User: **only** `C:\Users\travi\Projects\AI Lawyer Build`. README + `SKYLINE_BUILD_REVIEW` + `SECRETS_TEMPLATE` + `run.cmd` + `config` comment; §3 checklist = one workspace, mirror script recovery-only; deleted stray `Windows PowerShell*.txt` from repo root. |

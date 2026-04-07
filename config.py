@@ -16,7 +16,7 @@ except ImportError:
 
 ROOT = _ROOT_DIR
 
-# Single machine location for active development (see run.cmd, verify_setup, SKYLINE_BUILD_REVIEW.md).
+# Only active project root for this machine — no second working copy (see README, verify_setup).
 INTENDED_PROJECT_ROOT = Path(r"C:\Users\travi\Projects\AI Lawyer Build")
 
 # Skyline multi-state: Grok infers `primary_state`; review files live under SKYLINE_REVIEW_DIR/<state>/.
