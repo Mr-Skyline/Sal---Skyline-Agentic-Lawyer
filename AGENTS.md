@@ -19,11 +19,15 @@
 | What                       | Where                                     |
 | -------------------------- | ----------------------------------------- |
 | Full playbook              | `AGENT_TEAM_CHECKLIST.md`                 |
-| Release / phase alignment  | `SKYLINE_BUILD_REVIEW.md`                 |
-| Ops runbook (first run + troubleshooting) | `OPERATIONS_ELITE.txt`     |
+| Release / phase alignment  | `docs/SKYLINE_BUILD_REVIEW.md`            |
+| Ops runbook (first run + troubleshooting) | `docs/OPERATIONS_ELITE.txt` |
 | Cursor enforcement         | `.cursor/rules/agent-team-checklist.mdc`  |
 | Execution / secrets policy | `.cursor/rules/agent-autonomy.mdc`        |
-| Agent docs ↔ canonical stack | `mirror_agent_docs.cmd` (see checklist **§3**) |
+| Core Python package        | `src/sal/`                                |
+| Sal system prompt          | `prompts/`                                |
+| Scripts & CLI tools        | `scripts/`                                |
+| Config templates           | `config/`                                 |
+| Repo structure map         | `STRUCTURE.md`                            |
 | PR merge-ready loop        | User **babysit** skill (see checklist §2) |
 
 

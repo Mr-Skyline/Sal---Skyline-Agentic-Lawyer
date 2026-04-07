@@ -1,7 +1,8 @@
 """
-Dispute Agent Elite — Streamlit UI: evidence + Grok draft + Gmail draft.
-Run: py -m streamlit run main.py
-     (On Windows, `streamlit` alone may not be on PATH.)
+Sal — Skyline Agentic Lawyer: Streamlit UI entry point.
+
+Evidence intake, Grok-assisted analysis, draft generation, Gmail draft creation.
+Run: python -m streamlit run main.py
 """
 from __future__ import annotations
 

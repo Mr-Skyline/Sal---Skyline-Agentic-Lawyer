@@ -36,26 +36,28 @@
 
 ## 3. Environment & diagnostics
 
-- [ ] **Single workspace:** Open Cursor and terminals **only** under `C:\Users\travi\Projects\AI Lawyer Build` (`INTENDED_PROJECT_ROOT`). If you ever opened a different folder by mistake, **`mirror_agent_docs.cmd`** can copy `AGENTS.md`, `AGENT_TEAM_CHECKLIST.md`, and `.cursor/rules/*.mdc` into that path (or `backup` from it) — it does **not** copy app code or `SKYLINE_BUILD_REVIEW.md` / `OPERATIONS_ELITE.txt`; prefer fixing the workspace path instead of two trees.
-- [ ] To verify Grok env loading without exposing the key: run `env_check.py` via `.venv\Scripts\python.exe` or `EnvCheck.ps1` / `env_check.cmd` from project root (see repo root files).
-- [ ] Core deps: `requirements.txt`; OCR / Supabase: optional requirement files as documented in `bootstrap_venv.cmd` output.
+- [ ] **Single workspace:** Open Cursor and terminals **only** under the project root (`INTENDED_PROJECT_ROOT` in `src/sal/config.py`). If you ever opened a different folder by mistake, **`scripts/mirror_agent_docs.cmd`** can copy agent docs; prefer fixing the workspace path instead of two trees.
+- [ ] To verify Grok env loading without exposing the key: run `scripts/env_check.py` via `.venv\Scripts\python.exe` or `scripts/EnvCheck.ps1` / `scripts/env_check.cmd` from project root.
+- [ ] Core deps: `requirements.txt`; OCR / Supabase: optional requirement files as documented in `scripts/bootstrap_venv.cmd` output.
 - [ ] Optional env vars: see `.env.example` (`XAI_API_KEY`, `GROK_MODEL`, `GROK_MAX_OUTPUT_TOKENS`, `SAL_PROMPT_PATH`, Gmail/OAuth, Supabase, etc.).
+- [ ] **Package structure:** All core Python lives in `src/sal/`. Entry point: `main.py`. Scripts: `scripts/`. Docs: `docs/`. Prompts: `prompts/`.
 
 ## 4. Application behavior (Skyline / Sal)
 
-- [ ] **Owner:** Sal prompt + Grok integration may be maintained by **another agent** when the user says so; confirm in-thread before editing `Skyline Lawyer – Full System Prompt.txt`, `sal_prompt.py`, or Sal-related paths in `analysis.py`.
-- [ ] Grok analysis uses **Sal** from `Skyline Lawyer – Full System Prompt.txt` (through Phase 7; Phase 8 stripped) via `sal_prompt.load_sal_behavioral_text`, plus `json_tool_contract_suffix` and `run_mode_suffix` in `sal_prompt.py`; **`analysis.py` composes** the system message and calls Grok. Override path with **`SAL_PROMPT_PATH`**. If the file is missing or empty, **`analysis.py` falls back** to inline `SYSTEM_PROMPT_DISPUTE` / `SYSTEM_PROMPT_BUSINESS`.
+- [ ] **Owner:** Sal prompt + Grok integration may be maintained by **another agent** when the user says so; confirm in-thread before editing `prompts/Skyline Lawyer – Full System Prompt.txt`, `src/sal/sal_prompt.py`, or Sal-related paths in `src/sal/analysis.py`.
+- [ ] Grok analysis uses **Sal** from `prompts/Skyline Lawyer – Full System Prompt.txt` (through Phase 7; Phase 8 stripped) via `sal_prompt.load_sal_behavioral_text`, plus `json_tool_contract_suffix` and `run_mode_suffix` in `src/sal/sal_prompt.py`; **`src/sal/analysis.py` composes** the system message and calls Grok. Override path with **`SAL_PROMPT_PATH`**. If the file is missing or empty, **`analysis.py` falls back** to inline `SYSTEM_PROMPT_DISPUTE` / `SYSTEM_PROMPT_BUSINESS`.
 - [ ] `assistant_profile`: `dispute` vs `business_counsel` only adjusts a short run-mode add-on; same Sal core.
-- [ ] `state_hint` / `primary_state` and review paths: `config.py`, `review_export.py`, `main.py`.
-- [ ] **Non-Sal surfaces (reference):** Streamlit entry **`main.py`** / **`run.cmd`**; Gmail evidence **`evidence.py`** + **`draft.py`**; optional **`sync_worker.py`** + **`ingest.py`**; setup **`verify_setup.py`**. Phase intent vs status: **`SKYLINE_BUILD_REVIEW.md`** (not duplicated here).
+- [ ] `state_hint` / `primary_state` and review paths: `src/sal/config.py`, `src/sal/review_export.py`, `main.py`.
+- [ ] **Non-Sal surfaces (reference):** Streamlit entry **`main.py`** / **`scripts/run.cmd`**; Gmail evidence **`src/sal/evidence.py`** + **`src/sal/draft.py`**; optional **`src/sal/sync_worker.py`** + **`src/sal/ingest.py`**; setup **`src/sal/verify_setup.py`**. Phase intent vs status: **`docs/SKYLINE_BUILD_REVIEW.md`** (not duplicated here).
 
 ## 5. While implementing
 
 - [ ] Run linters / quick import checks on files you edit when available.
 - [ ] Prefer **full commands** for user-facing instructions if the user works from a fresh shell (explicit `cd` to project root).
 - [ ] Execute fixes in-terminal when the task allows; avoid “you should run X” without running X yourself unless blocked (e.g. user-only OAuth browser step).
-- [ ] Optional: `py verify_setup.py` (or `.venv\Scripts\python.exe verify_setup.py`) from project root when diagnosing environment issues.
-- [ ] Quick import sweep: `.venv\Scripts\python.exe smoke_check.py` (or `py smoke_check.py`) before a big merge or after dependency changes.
+- [ ] Optional: `py -m src.sal.verify_setup` or `py scripts/env_check.py` from project root when diagnosing environment issues.
+- [ ] Quick import sweep: `py scripts/smoke_check.py` before a big merge or after dependency changes.
+- [ ] Tests: `pytest` from project root (config in `pytest.ini`).
 
 ## 6. Before you stop (handoff)
 
@@ -89,3 +91,4 @@
 | 2026-04-11 | Agent 3 runbook     | `OPERATIONS_ELITE.txt`: first-run order, troubleshooting index, shipped vs roadmap; canonical `SKYLINE` note; `AGENTS.md` ops row; `main.py` caption under dedicated inbox (truth vs roadmap). |
 | 2026-04-12 | Agent 3 playbook    | §2 Agent 3 lane; §3 `mirror_agent_docs` exclusions; §4 Sal stack wording (`load_sal_behavioral_text` + `sal_prompt` JSON/mode suffixes + `analysis.py` compose); `mirror_agent_docs.cmd` REM for non-mirrored files. |
 | 2026-04-12 | Single project root   | User: **only** `C:\Users\travi\Projects\AI Lawyer Build`. README + `SKYLINE_BUILD_REVIEW` + `SECRETS_TEMPLATE` + `run.cmd` + `config` comment; §3 checklist = one workspace, mirror script recovery-only; deleted stray `Windows PowerShell*.txt` from repo root. |
+| 2026-04-07 | Master Builder restructure | Full repo reorganization: `src/sal/` Python package, `docs/`, `scripts/`, `prompts/`, `config/`. Implemented `_parse_sal_response_json`, `_normalize_sal_fields`, `friendly_sal_api_message`. All 14 tests pass. Updated §3–§5 paths. |
