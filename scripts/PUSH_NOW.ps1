@@ -1,12 +1,10 @@
 # Push this folder to GitHub (run on your machine in PowerShell).
 # Prereqs: Git installed; once: git config --global user.name "..." and user.email "..."
-# Usage:
-#   powershell -ExecutionPolicy Bypass -File "C:\Users\travi\Projects\AI Lawyer Build\PUSH_NOW.ps1"
-# Or from project root:
-#   powershell -ExecutionPolicy Bypass -File .\PUSH_NOW.ps1
+# Usage from project root:
+#   powershell -ExecutionPolicy Bypass -File .\scripts\PUSH_NOW.ps1
 
 $ErrorActionPreference = "Stop"
-$Root = "C:\Users\travi\Projects\AI Lawyer Build"
+$Root = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $RemoteUrl = "https://github.com/Mr-Skyline/Sal---Skyline-Agentic-Lawyer.git"
 
 function Find-GitExe {

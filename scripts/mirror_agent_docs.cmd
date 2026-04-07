@@ -5,8 +5,10 @@ REM NOT copied here (reconcile manually across two working trees if needed):
 REM   SKYLINE_BUILD_REVIEW.md, OPERATIONS_ELITE.txt, TRACK_D_*.md, application .py files.
 setlocal
 set "STACK=C:\Users\travi\Projects\AI Lawyer Build"
-set "HERE=%~dp0"
-set "HERE=%HERE:~0,-1%"
+set "HERE=%~dp0.."
+pushd "%HERE%"
+set "HERE=%CD%"
+popd
 
 if /i "%~1"=="backup" goto FROM_STACK
 if /i "%~1"=="fromstack" goto FROM_STACK
@@ -20,7 +22,7 @@ if not exist "%STACK%\" (
   exit /b 1
 )
 echo Pushing agent docs TO stack: %STACK%
-copy /Y "%HERE%\mirror_agent_docs.cmd" "%STACK%\"
+copy /Y "%HERE%\scripts\mirror_agent_docs.cmd" "%STACK%\scripts\"
 copy /Y "%HERE%\AGENTS.md" "%STACK%\"
 copy /Y "%HERE%\AGENT_TEAM_CHECKLIST.md" "%STACK%\"
 if not exist "%STACK%\.cursor\rules\" mkdir "%STACK%\.cursor\rules"
@@ -35,7 +37,7 @@ if not exist "%STACK%\AGENTS.md" (
   exit /b 1
 )
 echo Pulling agent docs FROM stack into backup copy: %HERE%
-if exist "%STACK%\mirror_agent_docs.cmd" copy /Y "%STACK%\mirror_agent_docs.cmd" "%HERE%\"
+if exist "%STACK%\scripts\mirror_agent_docs.cmd" copy /Y "%STACK%\scripts\mirror_agent_docs.cmd" "%HERE%\scripts\"
 copy /Y "%STACK%\AGENTS.md" "%HERE%\"
 copy /Y "%STACK%\AGENT_TEAM_CHECKLIST.md" "%HERE%\"
 if not exist "%HERE%\.cursor\rules\" mkdir "%HERE%\.cursor\rules"

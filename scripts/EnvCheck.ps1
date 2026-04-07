@@ -1,7 +1,7 @@
-Set-Location $PSScriptRoot
+Set-Location (Join-Path $PSScriptRoot "..")
 if (Test-Path ".\.venv\Scripts\python.exe") {
-    & .\.venv\Scripts\python.exe .\env_check.py
+    & .\.venv\Scripts\python.exe scripts\env_check.py
 } else {
-    py .\env_check.py
+    py scripts\env_check.py
 }
 exit $LASTEXITCODE

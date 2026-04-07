@@ -4,7 +4,7 @@
 # First push (finds Git if not on PATH): use PUSH_NOW.ps1 instead.
 
 $ErrorActionPreference = "Stop"
-Set-Location $PSScriptRoot
+Set-Location (Join-Path $PSScriptRoot "..")
 
 # Canonical remote for this build (inspectors / collaborators)
 $RemoteUrl = "https://github.com/Mr-Skyline/Sal---Skyline-Agentic-Lawyer.git"

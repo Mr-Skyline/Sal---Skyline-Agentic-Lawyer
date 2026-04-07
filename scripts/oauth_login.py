@@ -3,8 +3,8 @@ Gmail OAuth **outside Streamlit** (recommended if token.pickle never appears).
 
 Streamlit reruns can interrupt the local OAuth server; this script runs one clean flow.
 
-  cd /d "C:\Users\travi\Projects\AI Lawyer Build"
-  py oauth_login.py
+  cd /d "<project root>"
+  py scripts/oauth_login.py
 
 Removes existing token.pickle first, then opens the browser (or prints the URL if OAUTH_OPEN_BROWSER=0).
 """

@@ -1,6 +1,6 @@
 @echo off
 setlocal
-cd /d "%~dp0"
+cd /d "%~dp0.."
 
 REM Prefer 3.12 then 3.11 (reliable wheels on Windows). Avoid defaulting to 3.14 for fresh venvs.
 py -3.12 -m venv .venv 2>nul
@@ -17,7 +17,7 @@ if not exist ".venv\Scripts\python.exe" (
 :have_venv
 echo Upgrading pip and installing core requirements...
 ".venv\Scripts\python.exe" -m pip install -U pip
-".venv\Scripts\pip.exe" install -r "%~dp0requirements.txt"
+".venv\Scripts\pip.exe" install -r requirements.txt
 echo.
 echo Core install done. Optional: .venv\Scripts\pip.exe install -r requirements-ocr.txt
 echo              and/or .venv\Scripts\pip.exe install -r requirements-supabase.txt
