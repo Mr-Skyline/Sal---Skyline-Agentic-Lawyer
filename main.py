@@ -11,7 +11,7 @@ import os
 import streamlit as st
 from dotenv import load_dotenv
 
-from src.sal.analysis import analyze_and_draft
+from src.sal.analysis import analyze_and_draft, friendly_sal_api_message
 from src.sal.config import (
     CREDENTIALS_FILE,
     INTENDED_PROJECT_ROOT,
@@ -368,7 +368,10 @@ if analyze_submitted:
 
         except Exception as e:
             log_event("pipeline_error", error=str(e))
-            st.exception(e)
+            friendly = friendly_sal_api_message(e)
+            st.error(friendly)
+            with st.expander("Technical details", expanded=False):
+                st.exception(e)
 
 # --- Results ---
 if st.session_state.last_grok:
@@ -450,7 +453,9 @@ if draft_btn:
             )
         except Exception as e:
             log_event("draft_create_error", error=str(e))
-            st.exception(e)
+            st.error(f"Draft creation failed: {e}")
+            with st.expander("Technical details", expanded=False):
+                st.exception(e)
 
 # --- Deep admin (collapsed) ---
 with st.expander("Administrator · connectivity & credentials", expanded=False):

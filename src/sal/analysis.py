@@ -58,7 +58,39 @@ SYSTEM_PROMPT_BUSINESS = (
 )
 
 
-_JSON_OBJ_RE = re.compile(r"\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}")
+def _extract_json_object(text: str) -> str | None:
+    """Find the first top-level JSON object in *text* using brace-counting.
+
+    Respects string literals so braces inside ``"..."`` are not counted.
+    Returns the substring from the opening ``{`` to its matching ``}``,
+    or ``None`` if no balanced object is found.
+    """
+    start = text.find("{")
+    if start == -1:
+        return None
+    depth = 0
+    in_string = False
+    i = start
+    length = len(text)
+    while i < length:
+        ch = text[i]
+        if in_string:
+            if ch == "\\" and i + 1 < length:
+                i += 2
+                continue
+            if ch == '"':
+                in_string = False
+        else:
+            if ch == '"':
+                in_string = True
+            elif ch == "{":
+                depth += 1
+            elif ch == "}":
+                depth -= 1
+                if depth == 0:
+                    return text[start : i + 1]
+        i += 1
+    return None
 
 
 def _parse_sal_response_json(raw: str) -> tuple[Dict[str, Any], str]:
@@ -69,6 +101,10 @@ def _parse_sal_response_json(raw: str) -> tuple[Dict[str, Any], str]:
     Raises RuntimeError on unparseable or non-object JSON.
     """
     text = raw.strip()
+    if not text:
+        raise RuntimeError(
+            "Grok returned an empty response. Retry or check model availability."
+        )
     if text.startswith("\ufeff"):
         text = text.lstrip("\ufeff")
     if text.startswith("```"):
@@ -87,10 +123,10 @@ def _parse_sal_response_json(raw: str) -> tuple[Dict[str, Any], str]:
     except json.JSONDecodeError:
         pass
 
-    match = _JSON_OBJ_RE.search(text)
-    if match:
+    candidate = _extract_json_object(text)
+    if candidate:
         try:
-            data = json.loads(match.group(0))
+            data = json.loads(candidate)
             if isinstance(data, list):
                 raise RuntimeError(
                     "Grok returned a JSON array, but a JSON object is required."
