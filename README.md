@@ -21,6 +21,17 @@ Open Cursor and terminals there. Run `py verify_setup.py` from this folder.
 
 More detail: **`OPERATIONS_ELITE.txt`**, build checklist: **`SKYLINE_BUILD_REVIEW.md`**.
 
+## Tests
+
+From the project root (with `.venv` activated if you use one):
+
+```powershell
+pip install -r requirements-dev.txt
+pytest
+```
+
+Tests live under **`tests/`** (Sal JSON parsing and friendly API error strings; no live Grok calls).
+
 ## GitHub
 
 Remote: [Mr-Skyline/Sal---Skyline-Agentic-Lawyer](https://github.com/Mr-Skyline/Sal---Skyline-Agentic-Lawyer)
