@@ -19,3 +19,6 @@ Thumbs.db
 
 # Accidental nested clone of the same GitHub repo (keep one flat tree only)
 Sal---Skyline-Agentic-Lawyer/
+
+# Accidental editor / scratch exports
+Windows PowerShell*.txt

@@ -40,6 +40,6 @@ powershell -ExecutionPolicy Bypass -File .\PUSH_NOW.ps1
 
 **Do not** `git clone` the repo *into* this folder (you get a nested `Sal---Skyline-Agentic-Lawyer/` folder and Git records it wrong). This tree **is** the repo; use `git init` / `PUSH_NOW.ps1` here only.
 
-If push is rejected because GitHub already has a README: run `git pull origin main --rebase --allow-unrelated-histories`, resolve any conflicts, then `git push -u origin main`.
+If push is rejected because GitHub already has a README: run `git pull origin main --allow-unrelated-histories --no-rebase`, resolve any conflicts, then `git push -u origin main`.
 
 **Replace placeholder identity:** `git config --global user.name` / `user.email` should be your real name and email, not the examples.
