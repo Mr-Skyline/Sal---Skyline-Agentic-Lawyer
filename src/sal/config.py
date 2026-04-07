@@ -3,6 +3,7 @@
 Canonical project root: INTENDED_PROJECT_ROOT (see below).
 """
 import os
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -16,8 +17,20 @@ except ImportError:
 
 ROOT = _ROOT_DIR
 
-# Only active project root for this machine — no second working copy (see README, verify_setup).
-INTENDED_PROJECT_ROOT = Path(r"C:\Users\travi\Projects\AI Lawyer Build")
+# Portable project root: env var → Windows default → dynamic ROOT.
+_WINDOWS_DEFAULT = Path(r"C:\Users\travi\Projects\AI Lawyer Build")
+
+
+def _resolve_intended_root() -> Path:
+    env_val = os.environ.get("SAL_PROJECT_ROOT", "").strip()
+    if env_val:
+        return Path(env_val).resolve()
+    if sys.platform == "win32" and _WINDOWS_DEFAULT.is_dir():
+        return _WINDOWS_DEFAULT
+    return ROOT
+
+
+INTENDED_PROJECT_ROOT = _resolve_intended_root()
 
 # Skyline multi-state: Grok infers `primary_state`; review files live under SKYLINE_REVIEW_DIR/<state>/.
 JOB_SITE_STATE_CODES = ("CO", "FL", "AZ", "TX", "NE")
