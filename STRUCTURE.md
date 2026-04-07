@@ -11,6 +11,7 @@
 | `AGENT_TEAM_CHECKLIST.md` | Living playbook for multi-agent workflow |
 | `.env.example` | Template for local secrets (copy to `.env`) |
 | `requirements*.txt` | Dependency manifests (core, dev, OCR, Supabase, full) |
+| `pyproject.toml` | PEP 621 project metadata, dependencies, entry points, tool config |
 | `.gitignore` | Secrets, venv, caches, local archives |
 | `pytest.ini` | Test runner config |
 
