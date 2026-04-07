@@ -11,7 +11,15 @@ import time
 from functools import lru_cache
 from typing import Any, Dict, Optional
 
-from openai import OpenAI
+from openai import (
+    APIConnectionError,
+    APIStatusError,
+    APITimeoutError,
+    AuthenticationError,
+    InternalServerError,
+    OpenAI,
+    RateLimitError,
+)
 
 from config import (
     API_BASE_DELAY_SEC,
@@ -29,6 +37,140 @@ from sal_prompt import (
 )
 
 _STATE_CODES_S = ", ".join(JOB_SITE_STATE_CODES)
+
+def _strip_leading_bom(text: str) -> str:
+    return text.lstrip("\ufeff")
+
+
+def _strip_outer_json_fence(text: str) -> str:
+    s = text.strip()
+    if not s.startswith("```"):
+        return text
+    s = re.sub(r"^```(?:json)?\s*", "", s, flags=re.IGNORECASE)
+    s = re.sub(r"\s*```\s*$", "", s)
+    return s
+
+
+def _extract_first_json_object(text: str) -> tuple[str, str]:
+    """
+    Return (slice, mode) where mode is 'direct' if the whole (trimmed, unfenced) string
+    parsed as JSON, else 'extracted' when a leading object substring was used.
+    """
+    raw = _strip_leading_bom(text).strip()
+    unfenced = _strip_outer_json_fence(raw)
+    candidate = unfenced.strip()
+    try:
+        parsed = json.loads(candidate)
+        if isinstance(parsed, dict):
+            return candidate, "direct"
+    except json.JSONDecodeError:
+        pass
+
+    start = candidate.find("{")
+    if start < 0:
+        raise RuntimeError("No JSON object found in model response.") from None
+
+    depth = 0
+    in_str = False
+    esc = False
+    quote = ""
+    for i in range(start, len(candidate)):
+        ch = candidate[i]
+        if in_str:
+            if esc:
+                esc = False
+            elif ch == "\\":
+                esc = True
+            elif ch == quote:
+                in_str = False
+                quote = ""
+            continue
+        if ch in "\"'":
+            in_str = True
+            quote = ch
+            continue
+        if ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+            if depth == 0:
+                slice_ = candidate[start : i + 1]
+                try:
+                    parsed2 = json.loads(slice_)
+                except json.JSONDecodeError as e:
+                    raise RuntimeError(
+                        "Model returned text containing `{` but not valid JSON object."
+                    ) from e
+                if not isinstance(parsed2, dict):
+                    raise RuntimeError("Extracted JSON value is not a JSON object.")
+                return slice_, "extracted"
+    raise RuntimeError("Unclosed JSON object in model response.") from None
+
+
+def _parse_sal_response_json(raw: str) -> tuple[dict[str, Any], str]:
+    slice_, mode = _extract_first_json_object(raw)
+    try:
+        data = json.loads(slice_)
+    except json.JSONDecodeError as e:
+        raise RuntimeError("Invalid JSON in Sal response.") from e
+    if isinstance(data, list):
+        raise RuntimeError("Expected a JSON object, not an array.")
+    if not isinstance(data, dict):
+        raise RuntimeError("Expected a JSON object.")
+    return data, mode
+
+
+def _normalize_sal_fields(data: dict[str, Any]) -> None:
+    if "draft_body" not in data or data.get("draft_body") is None:
+        data["draft_body"] = data.get("reply") or ""
+    if data.get("draft_body") is None:
+        data["draft_body"] = ""
+    if "analysis" not in data or data.get("analysis") is None:
+        data["analysis"] = ""
+    if data.get("citations") is None:
+        data["citations"] = []
+    cit = data.get("citations")
+    if isinstance(cit, str):
+        data["citations"] = [cit] if cit else []
+
+
+def friendly_sal_api_message(exc: BaseException) -> Optional[str]:
+    """Operator-facing hint for common xAI / Grok client failures."""
+    chain: list[BaseException] = []
+    cur: Optional[BaseException] = exc
+    seen: set[int] = set()
+    while cur is not None and id(cur) not in seen:
+        seen.add(id(cur))
+        chain.append(cur)
+        cur = cur.__cause__ or cur.__context__
+
+    for err in chain:
+        if isinstance(err, RuntimeError):
+            low = str(err).lower()
+            if "no completion choices" in low or "empty response" in low:
+                return (
+                    "Grok returned an empty completion. Check XAI_API_KEY, model name, "
+                    "and try again."
+                )
+        if isinstance(err, APIConnectionError):
+            return (
+                "Connection to Grok failed. Check your network, VPN, and firewall, then retry."
+            )
+        if isinstance(err, APITimeoutError):
+            return "Grok request timed out. Retry with less evidence or a shorter prompt."
+        if isinstance(err, AuthenticationError):
+            return "Grok rejected the API key. Verify XAI_API_KEY in your environment."
+        if isinstance(err, RateLimitError):
+            return "Grok rate limit hit. Wait briefly and retry, or reduce request volume."
+        if isinstance(err, InternalServerError):
+            return "Grok returned a server error (upstream). Retry after a short wait."
+        if isinstance(err, APIStatusError):
+            code = getattr(err.response, "status_code", None)
+            if code is not None:
+                return f"Grok API error (HTTP {code}). Check status.x.ai and your request."
+            return "Grok API returned an error response. Check status.x.ai and your request."
+    return None
+
 
 SYSTEM_PROMPT_DISPUTE = (
     "You are an elite dispute communications assistant (not a lawyer): cross-check evidence "
@@ -143,24 +285,21 @@ def analyze_and_draft(
             )
             usage = getattr(resp, "usage", None)
 
-            text = (resp.choices[0].message.content or "{}").strip()
-            if text.startswith("```"):
-                text = re.sub(r"^```(?:json)?\s*", "", text, flags=re.IGNORECASE)
-                text = re.sub(r"\s*```\s*$", "", text)
+            choices = getattr(resp, "choices", None) or []
+            if not choices:
+                raise RuntimeError(
+                    "Grok returned no completion choices (empty response)."
+                )
+            text = (choices[0].message.content or "").strip()
             try:
-                data = json.loads(text)
-            except json.JSONDecodeError as e:
+                data, _ = _parse_sal_response_json(text)
+            except RuntimeError:
                 preview = (text[:280] + "…") if len(text) > 280 else text
                 raise RuntimeError(
                     "Grok returned content that is not valid JSON. Try again, shorten evidence, "
                     f"or switch model. Raw preview: {preview!r}"
                 ) from e
-            if "draft_body" not in data:
-                data["draft_body"] = data.get("reply", "") or ""
-            if "analysis" not in data:
-                data["analysis"] = ""
-            if "citations" not in data:
-                data["citations"] = []
+            _normalize_sal_fields(data)
             inferred = normalize_primary_state(data.get("primary_state"))
             data["primary_state"] = forced_state if forced_state else inferred
             extra = {"model": model, "assistant_profile": assistant_profile}
