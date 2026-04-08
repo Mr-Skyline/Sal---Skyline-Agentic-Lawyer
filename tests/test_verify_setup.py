@@ -29,7 +29,8 @@ def test_run_checks_returns_setup_status():
 def test_run_checks_no_xai_key():
     env = {k: v for k, v in os.environ.items() if k != "XAI_API_KEY"}
     with patch.dict(os.environ, env, clear=True):
-        status = run_checks()
+        with patch("src.sal.verify_setup.load_dotenv"):
+            status = run_checks()
     assert status.grok_and_credentials_ok is False
 
 

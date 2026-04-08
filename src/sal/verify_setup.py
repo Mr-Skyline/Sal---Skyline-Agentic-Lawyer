@@ -40,7 +40,7 @@ def run_checks() -> SetupStatus:
         TOKEN_FILE,
     )
 
-    load_dotenv(ROOT / ".env", override=True)
+    load_dotenv(ROOT / ".env", override=False)
 
     lines: List[str] = []
     lines.append(f"Project folder: {ROOT}")

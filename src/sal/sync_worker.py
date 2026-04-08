@@ -32,7 +32,8 @@ from .logger_util import log_event
 
 
 def main() -> None:
-    load_dotenv(ROOT / ".env", override=True)
+    # Do not override existing os.environ (tests, Task Scheduler, one-off exports win over .env).
+    load_dotenv(ROOT / ".env", override=False)
 
     parser = argparse.ArgumentParser(description="Gmail CC/thread sync worker")
     parser.add_argument(

@@ -9,7 +9,7 @@ import random
 import re
 import time
 from functools import lru_cache
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, cast
 
 from openai import OpenAI
 
@@ -78,10 +78,10 @@ def _extract_json_object(text: str) -> str | None:
             if ch == "\\" and i + 1 < length:
                 i += 2
                 continue
-            if ch == '"':
+            if ch in "\"'":
                 in_string = False
         else:
-            if ch == '"':
+            if ch in "\"'":
                 in_string = True
             elif ch == "{":
                 depth += 1
@@ -144,11 +144,11 @@ def _parse_sal_response_json(raw: str) -> tuple[Dict[str, Any], str]:
 
 def _normalize_sal_fields(data: Dict[str, Any]) -> None:
     """Normalize Grok response fields in place so downstream code gets consistent types."""
-    if "draft_body" not in data:
+    if "draft_body" not in data or data.get("draft_body") is None:
         data["draft_body"] = data.pop("reply", "") or ""
     if data.get("draft_body") is None:
         data["draft_body"] = ""
-    if data.get("analysis") is None:
+    if "analysis" not in data or data.get("analysis") is None:
         data["analysis"] = ""
     cites = data.get("citations")
     if cites is None:
@@ -157,8 +157,8 @@ def _normalize_sal_fields(data: Dict[str, Any]) -> None:
         data["citations"] = [cites] if cites.strip() else []
 
 
-def friendly_sal_api_message(exc: BaseException) -> str:
-    """Return a user-friendly one-liner for common xAI / OpenAI SDK errors."""
+def friendly_sal_api_message(exc: BaseException) -> Optional[str]:
+    """Operator-facing hint for common xAI / Grok client failures."""
     from openai import (
         APIConnectionError,
         APIStatusError,
@@ -168,28 +168,44 @@ def friendly_sal_api_message(exc: BaseException) -> str:
         RateLimitError,
     )
 
-    cause = exc.__cause__ if exc.__cause__ else exc
+    chain: list[BaseException] = []
+    cur: Optional[BaseException] = exc
+    seen: set[int] = set()
+    while cur is not None and id(cur) not in seen:
+        seen.add(id(cur))
+        chain.append(cur)
+        cur = cur.__cause__ or cur.__context__
 
-    if isinstance(cause, AuthenticationError):
-        return "API key rejected — check XAI_API_KEY in .env."
-    if isinstance(cause, RateLimitError):
-        return "Rate limit hit — wait a moment and retry."
-    if isinstance(cause, APITimeoutError):
-        return "Timeout — Grok did not respond in time. Try again."
-    if isinstance(cause, APIConnectionError):
-        return "Connection failed — check network or xAI status."
-    if isinstance(cause, InternalServerError):
-        code = getattr(getattr(cause, "response", None), "status_code", "")
-        return f"Grok server error ({code}) — retry shortly."
-    if isinstance(cause, APIStatusError):
-        code = getattr(getattr(cause, "response", None), "status_code", "")
-        return f"Grok API error ({code}) — check xAI dashboard."
-    if isinstance(exc, RuntimeError):
-        msg = str(exc)
-        if "empty response" in msg.lower() or "no completion" in msg.lower():
-            return "Grok returned no completion choices (empty response). Retry or check model availability."
-        return msg
-    return str(exc)
+    for err in chain:
+        if isinstance(err, RuntimeError):
+            low = str(err).lower()
+            if "no completion choices" in low or "empty response" in low:
+                return (
+                    "Grok returned an empty completion. Check XAI_API_KEY, model name, "
+                    "and try again."
+                )
+        if isinstance(err, APITimeoutError):
+            return (
+                "Timeout: Grok request timed out. Retry with less evidence or a shorter prompt."
+            )
+        if isinstance(err, APIConnectionError):
+            return (
+                "Connection to Grok failed. Check your network, VPN, and firewall, then retry."
+            )
+        if isinstance(err, AuthenticationError):
+            return "Grok rejected the API key. Verify XAI_API_KEY in your environment."
+        if isinstance(err, RateLimitError):
+            return (
+                "Rate limit: Grok is throttling requests. Wait briefly and retry, or reduce volume."
+            )
+        if isinstance(err, InternalServerError):
+            return "Grok returned a server error (upstream). Retry after a short wait."
+        if isinstance(err, APIStatusError):
+            code = getattr(err.response, "status_code", None)
+            if code is not None:
+                return f"Grok API error (HTTP {code}). Check status.x.ai and your request."
+            return "Grok API returned an error response. Check status.x.ai and your request."
+    return None
 
 
 @lru_cache(maxsize=1)
@@ -277,9 +293,12 @@ def analyze_and_draft(
             )
             usage = getattr(resp, "usage", None)
 
-            if not resp.choices:
-                raise RuntimeError("Grok returned no completion choices (empty response).")
-            text = (resp.choices[0].message.content or "{}").strip()
+            choices = cast(list[Any], getattr(resp, "choices", None) or [])
+            if not choices:
+                raise RuntimeError(
+                    "Grok returned no completion choices (empty response)."
+                )
+            text = (choices[0].message.content or "{}").strip()
             data, _parse_mode = _parse_sal_response_json(text)
             _normalize_sal_fields(data)
             inferred = normalize_primary_state(data.get("primary_state"))
