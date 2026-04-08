@@ -6,13 +6,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from config import normalize_primary_state, review_state_subdir
-from review_export import (
+from src.sal.config import normalize_primary_state, review_state_subdir
+from src.sal.review_export import (
     _review_filename,
     default_client_label,
     default_issue_keyword,
 )
-from sal_prompt import load_sal_behavioral_text
+from src.sal.sal_prompt import load_sal_behavioral_text
 
 
 class TestReviewExportNaming(unittest.TestCase):

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import unittest
 
-from analysis import _normalize_sal_fields, _parse_sal_response_json
+from src.sal.analysis import _normalize_sal_fields, _parse_sal_response_json
 
 
 class TestParseSalResponseJson(unittest.TestCase):
@@ -46,6 +46,28 @@ class TestParseSalResponseJson(unittest.TestCase):
             _parse_sal_response_json("[1,2,3]")
         self.assertIn("object", str(ctx.exception).lower())
 
+    def test_nested_json(self) -> None:
+        raw = '{"analysis":"x","draft_body":"","citations":[{"ref":"email","date":"2024-01-01"}],"primary_state":"CO"}'
+        data, mode = _parse_sal_response_json(raw)
+        self.assertEqual(mode, "direct")
+        self.assertEqual(len(data["citations"]), 1)
+        self.assertEqual(data["citations"][0]["ref"], "email")
+
+    def test_extracted_nested_json(self) -> None:
+        raw = (
+            'Here is my analysis:\n'
+            '{"analysis":"deep","draft_body":"body","citations":[],'
+            '"primary_state":"","metadata":{"model":"grok","tokens":{"in":100,"out":200}}}\n'
+            'End.'
+        )
+        data, mode = _parse_sal_response_json(raw)
+        self.assertEqual(mode, "extracted")
+        self.assertEqual(data["metadata"]["tokens"]["in"], 100)
+
+    def test_empty_string_raises(self) -> None:
+        with self.assertRaises(RuntimeError):
+            _parse_sal_response_json("")
+
 
 class TestNormalizeSalFields(unittest.TestCase):
     def test_citations_string_to_list(self) -> None:
@@ -59,6 +81,13 @@ class TestNormalizeSalFields(unittest.TestCase):
         d: dict = {"reply": "body text"}
         _normalize_sal_fields(d)
         self.assertEqual(d["draft_body"], "body text")
+
+    def test_normalize_missing_all_fields(self) -> None:
+        d: dict = {}
+        _normalize_sal_fields(d)
+        self.assertEqual(d["draft_body"], "")
+        self.assertEqual(d["analysis"], "")
+        self.assertEqual(d["citations"], [])
 
 
 if __name__ == "__main__":

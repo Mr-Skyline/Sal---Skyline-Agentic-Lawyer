@@ -15,7 +15,7 @@
 - [ ] **Skim `AGENTS.md`** — one-page entry; this checklist is the detailed playbook.
 - [ ] **Read this checklist** for the current task — including **§2 Lanes** if multiple agents or subagents are active.
 - [ ] **Read project rules:** `.cursor/rules/*.mdc` (especially autonomy + team checklist rule).
-- [ ] **Canonical project root:** active build is only `C:\Users\travi\Projects\AI Lawyer Build` (`INTENDED_PROJECT_ROOT` in `config.py`). Open Cursor and terminals there. If you open a different folder, `py verify_setup.py` warns — use one tree only unless you are explicitly reconciling copies.
+- [ ] **Canonical project root:** active build is only `C:\Users\travi\Projects\AI Lawyer Build` (`INTENDED_PROJECT_ROOT` in `src/sal/config.py`). Open Cursor and terminals there. If you open a different folder, `py -m src.sal.verify_setup` warns — use one tree only unless you are explicitly reconciling copies.
 - [ ] **Secrets:** never commit `.env`, `credentials.json`, or `token.pickle`; never paste API keys or tokens into chat or docs.
 - [ ] **Windows Python:** do not assume `python` works. Prefer `.\.venv\Scripts\python.exe`, or `py -3.12` / `py -3.11`, then `py -3`. Use `bootstrap_venv.cmd` to create `.venv` if missing.
 - [ ] **Scope:** only change what the task requires; match existing style and patterns in touched files.
@@ -36,26 +36,28 @@
 
 ## 3. Environment & diagnostics
 
-- [ ] **Single workspace:** Open Cursor and terminals **only** under `C:\Users\travi\Projects\AI Lawyer Build` (`INTENDED_PROJECT_ROOT`). If you ever opened a different folder by mistake, **`mirror_agent_docs.cmd`** can copy `AGENTS.md`, `AGENT_TEAM_CHECKLIST.md`, and `.cursor/rules/*.mdc` into that path (or `backup` from it) — it does **not** copy app code or `docs/SKYLINE_BUILD_REVIEW.md` / `docs/OPERATIONS_ELITE.txt`; prefer fixing the workspace path instead of two trees.
-- [ ] To verify Grok env loading without exposing the key: run `env_check.py` via `.venv\Scripts\python.exe` or `EnvCheck.ps1` / `env_check.cmd` from project root (see repo root files).
-- [ ] Core deps: `requirements.txt`; OCR / Supabase: optional requirement files as documented in `bootstrap_venv.cmd` output.
+- [ ] **Single workspace:** Open Cursor and terminals **only** under the project root (`C:\Users\travi\Projects\AI Lawyer Build`; `INTENDED_PROJECT_ROOT` in `src/sal/config.py`). If you ever opened a different folder by mistake, **`scripts/mirror_agent_docs.cmd`** can copy `AGENTS.md`, `AGENT_TEAM_CHECKLIST.md`, and `.cursor/rules/*.mdc` — it does **not** copy app code or `docs/SKYLINE_BUILD_REVIEW.md` / `docs/OPERATIONS_ELITE.txt`; prefer fixing the workspace path instead of two trees.
+- [ ] To verify Grok env loading without exposing the key: run `scripts/env_check.py` via `.venv\Scripts\python.exe` or `scripts/EnvCheck.ps1` / `scripts/env_check.cmd` from project root.
+- [ ] Core deps: `requirements.txt`; OCR / Supabase: optional requirement files as documented in `scripts/bootstrap_venv.cmd` output.
 - [ ] Optional env vars: see `.env.example` (`XAI_API_KEY`, `GROK_MODEL`, `GROK_MAX_OUTPUT_TOKENS`, `SAL_PROMPT_PATH`, Gmail/OAuth, Supabase, etc.).
+- [ ] **Package structure:** All core Python lives in `src/sal/`. Entry point: `main.py`. Scripts: `scripts/`. Docs: `docs/`. Prompts: `prompts/`.
 
 ## 4. Application behavior (Skyline / Sal)
 
-- [ ] **Owner:** Sal prompt + Grok integration may be maintained by **another agent** when the user says so; confirm in-thread before editing `Skyline Lawyer – Full System Prompt.txt`, `sal_prompt.py`, or Sal-related paths in `analysis.py`.
-- [ ] Grok analysis uses **Sal** from `Skyline Lawyer – Full System Prompt.txt` (through Phase 7; Phase 8 stripped) via `sal_prompt.load_sal_behavioral_text`, plus `json_tool_contract_suffix` and `run_mode_suffix` in `sal_prompt.py`; **`analysis.py` composes** the system message and calls Grok. Override path with **`SAL_PROMPT_PATH`**. If the file is missing or empty, **`analysis.py` falls back** to inline `SYSTEM_PROMPT_DISPUTE` / `SYSTEM_PROMPT_BUSINESS`.
+- [ ] **Owner:** Sal prompt + Grok integration may be maintained by **another agent** when the user says so; confirm in-thread before editing `prompts/Skyline Lawyer – Full System Prompt.txt`, `src/sal/sal_prompt.py`, or Sal-related paths in `src/sal/analysis.py`.
+- [ ] Grok analysis uses **Sal** from `prompts/Skyline Lawyer – Full System Prompt.txt` (through Phase 7; Phase 8 stripped) via `sal_prompt.load_sal_behavioral_text`, plus `json_tool_contract_suffix` and `run_mode_suffix` in `src/sal/sal_prompt.py`; **`src/sal/analysis.py` composes** the system message and calls Grok. Override path with **`SAL_PROMPT_PATH`**. If the file is missing or empty, **`analysis.py` falls back** to inline `SYSTEM_PROMPT_DISPUTE` / `SYSTEM_PROMPT_BUSINESS`.
 - [ ] `assistant_profile`: `dispute` vs `business_counsel` only adjusts a short run-mode add-on; same Sal core.
-- [ ] `state_hint` / `primary_state` and review paths: `config.py`, `review_export.py`, `main.py`.
-- [ ] **Non-Sal surfaces (reference):** Streamlit entry **`main.py`** / **`run.cmd`**; Gmail evidence **`evidence.py`** + **`draft.py`**; optional **`sync_worker.py`** + **`ingest.py`**; setup **`verify_setup.py`**. Phase intent vs status: **`docs/SKYLINE_BUILD_REVIEW.md`** (not duplicated here).
+- [ ] `state_hint` / `primary_state` and review paths: `src/sal/config.py`, `src/sal/review_export.py`, `main.py`.
+- [ ] **Non-Sal surfaces (reference):** Streamlit entry **`main.py`** / **`scripts/run.cmd`**; Gmail evidence **`src/sal/evidence.py`** + **`src/sal/draft.py`**; optional **`src/sal/sync_worker.py`** + **`src/sal/ingest.py`**; setup **`src/sal/verify_setup.py`**. Phase intent vs status: **`docs/SKYLINE_BUILD_REVIEW.md`** (not duplicated here).
 
 ## 5. While implementing
 
 - [ ] Run linters / quick import checks on files you edit when available.
 - [ ] Prefer **full commands** for user-facing instructions if the user works from a fresh shell (explicit `cd` to project root).
 - [ ] Execute fixes in-terminal when the task allows; avoid “you should run X” without running X yourself unless blocked (e.g. user-only OAuth browser step).
-- [ ] Optional: `py verify_setup.py` (or `.venv\Scripts\python.exe verify_setup.py`) from project root when diagnosing environment issues.
-- [ ] Quick import sweep: `.venv\Scripts\python.exe smoke_check.py` (or `py smoke_check.py`) before a big merge or after dependency changes.
+- [ ] Optional: `py -m src.sal.verify_setup` or `py scripts/env_check.py` from project root when diagnosing environment issues.
+- [ ] Quick import sweep: `py scripts/smoke_check.py` before a big merge or after dependency changes.
+- [ ] Tests: `pytest` from project root (config in `pyproject.toml`).
 
 ## 6. Before you stop (handoff)
 
@@ -89,5 +91,14 @@
 | 2026-04-11 | Agent 3 runbook     | `docs/OPERATIONS_ELITE.txt`: first-run order, troubleshooting index, shipped vs roadmap; canonical `SKYLINE` note; `AGENTS.md` ops row; `main.py` caption under dedicated inbox (truth vs roadmap). |
 | 2026-04-12 | Agent 3 playbook    | §2 Agent 3 lane; §3 `mirror_agent_docs` exclusions; §4 Sal stack wording (`load_sal_behavioral_text` + `sal_prompt` JSON/mode suffixes + `analysis.py` compose); `mirror_agent_docs.cmd` REM for non-mirrored files. |
 | 2026-04-12 | Single project root   | User: **only** `C:\Users\travi\Projects\AI Lawyer Build`. README + `SKYLINE_BUILD_REVIEW` + `SECRETS_TEMPLATE` + `run.cmd` + `config` comment; §3 checklist = one workspace, mirror script recovery-only; deleted stray `Windows PowerShell*.txt` from repo root. |
-| 2026-04-07 | Quality Inspector   | `docs/SKYLINE_BUILD_REVIEW.md` + `docs/OPERATIONS_ELITE.txt`; `scripts/` + `src/sal/` placeholders; `tests/test_review_config_sal.py`; `logger_util` caps `error` JSONL field; `analysis.py` Sal JSON helpers + `friendly_sal_api_message` for tests. |
+| 2026-04-07 | Master Builder restructure | Full repo reorganization: `src/sal/` Python package, `docs/`, `scripts/`, `prompts/`, `config/`. Implemented `_parse_sal_response_json`, `_normalize_sal_fields`, `friendly_sal_api_message`. All 14 tests pass. Updated §3–§5 paths. |
+| 2026-04-07 | Quality Inspector  | Security audit clean; model-vs-code verified; added tests/test_core_utils.py; docs/OPERATIONS_ELITE.txt paths updated. |
+| 2026-04-08 | Round 2 integration | Track F partial; draft.py branding; SKYLINE_BUILD_REVIEW bumped to 2026-04-08. |
+| 2026-04-08 | Round 3 grind | Full test coverage: all 13 src/sal/ modules tested; CI/CD pipeline; Makefile. |
+| 2026-04-07 | CI / tests            | `gh api …/actions/runs` can return empty `workflow_runs` if the token lacks **Actions read** or the repo has no workflows; pytest expected `analysis.py` helpers (`_parse_sal_response_json`, `_normalize_sal_fields`, `friendly_sal_api_message`) — implemented and wired `analyze_and_draft` to shared JSON path + empty-choices guard. |
+| 2026-04-07 | CI workflow           | Added `.github/workflows/ci.yml`: Ubuntu, Python 3.11/3.12, `pip install -r requirements-dev.txt`, `pytest tests/`. `APITimeoutError` is a subclass of `APIConnectionError` in openai — check timeout before connection in `friendly_sal_api_message`. |
+| 2026-04-08 | PR #2 merge main      | Resolved conflicts: CI combines `cursor/**` push triggers + pip cache + verbose pytest + import smoke; `src/sal/analysis.py` keeps brace JSON extract, merges `friendly_sal_api_message` chain + timeout-before-connection + single-quote string literals in `_extract_json_object`; `_normalize_sal_fields` handles missing `analysis` key. |
+| 2026-04-08 | dotenv override       | `sync_worker.py` + `verify_setup.py`: `load_dotenv(..., override=False)` so subprocess/tests/Task Scheduler env is not clobbered by `.env`; `test_run_checks_no_xai_key` mocks `load_dotenv` when asserting missing `XAI_API_KEY`. |
+| 2026-04-07 | Quality Inspector   | `docs/SKYLINE_BUILD_REVIEW.md` + `docs/OPERATIONS_ELITE.txt`; `tests/test_review_config_sal.py`; `src/sal/logger_util` caps `error` JSONL field; merge with `main` package layout. |
 | 2026-04-07 | Quality Inspector follow-up | `main.py`: `gmail_evidence_start` logs domain + thread_id flag only; Technical tab PII warning before evidence JSON. |
+| 2026-04-07 | Merge `main` into audit branch | Rebased Quality Inspector work on post-#2 `main`: resolved doc conflicts; `src/sal/analysis.py` keeps brace JSON + `friendly_sal_api_message` with timeout-before-connection; `tests/test_review_config_sal.py` imports `src.sal.*`; 126 pytest tests pass. |
