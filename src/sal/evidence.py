@@ -539,6 +539,24 @@ def merge_evidence_json(items: List[Dict[str, Any]]) -> str:
     return json.dumps(items, ensure_ascii=False)
 
 
+def deduplicate_evidence(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Remove duplicate evidence rows based on (source, message_id) for Gmail
+    or (source, text hash) for pasted/document/screenshot items."""
+    seen: set = set()
+    unique: List[Dict[str, Any]] = []
+    for item in items:
+        source = item.get("source", "")
+        if source == "gmail":
+            key = ("gmail", item.get("message_id", ""))
+        else:
+            text = item.get("text", "")
+            key = (source, hash(text))
+        if key not in seen:
+            seen.add(key)
+            unique.append(item)
+    return unique
+
+
 _OCR_UPLOAD_EXT = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".pdf"}
 _TEXT_DOC_EXT = {".txt", ".md", ".markdown", ".docx"}
 

@@ -23,6 +23,7 @@ from src.sal.config import (
 )
 from src.sal.draft import create_gmail_draft
 from src.sal.evidence import (
+    deduplicate_evidence,
     fetch_messages_for_evidence,
     get_gmail_service,
     merge_evidence_json,
@@ -103,6 +104,37 @@ def _inject_theme_css() -> None:
         hr {
             border-color: rgba(201, 162, 39, 0.2) !important;
         }
+        /* Primary button gold accent */
+        button[kind="primary"], .stButton > button[kind="primary"] {
+            background: linear-gradient(135deg, #C9A227 0%, #A8891A 100%) !important;
+            color: #0C0C0C !important;
+            border: none !important;
+            font-weight: 600 !important;
+        }
+        button[kind="primary"]:hover {
+            background: linear-gradient(135deg, #D4AF37 0%, #C9A227 100%) !important;
+        }
+        /* Tab styling */
+        button[data-baseweb="tab"] {
+            font-family: 'Source Sans 3', sans-serif !important;
+            font-weight: 500 !important;
+        }
+        button[data-baseweb="tab"][aria-selected="true"] {
+            border-bottom-color: #C9A227 !important;
+        }
+        /* Download button */
+        .stDownloadButton > button {
+            border: 1px solid rgba(201, 162, 39, 0.35) !important;
+            background: rgba(20, 20, 20, 0.85) !important;
+        }
+        .stDownloadButton > button:hover {
+            border-color: #C9A227 !important;
+            background: rgba(30, 28, 22, 0.95) !important;
+        }
+        /* Success/info/warning/error refinement */
+        [data-testid="stAlert"] {
+            border-radius: 8px;
+        }
         </style>
         """,
         unsafe_allow_html=True,
@@ -111,14 +143,29 @@ def _inject_theme_css() -> None:
 
 _inject_theme_css()
 
-# --- Minimal sidebar (navigation + one-line cue) ---
+# --- Minimal sidebar (navigation + status) ---
 with st.sidebar:
-    st.markdown("### Sal · Skyline Lawyer")
-    st.caption("Primary workspace is the main panel. Technical setup lives at the bottom.")
-    if ready:
-        st.success("Connectivity ready.")
+    st.markdown("### ⚖️ Sal · Skyline Lawyer")
+    st.caption("AI-powered legal correspondence workspace")
+    st.divider()
+    checks = []
+    if xai_ok:
+        checks.append("✅ Grok API")
     else:
-        st.warning("Action required — see alerts above the form or open **Administrator** below.")
+        checks.append("❌ Grok API")
+    if cred_ok and tok_ok:
+        checks.append("✅ Gmail")
+    elif cred_ok:
+        checks.append("⚠️ Gmail (needs login)")
+    else:
+        checks.append("❌ Gmail")
+    if ocr_ok:
+        checks.append("✅ OCR")
+    else:
+        checks.append("➖ OCR (optional)")
+    st.markdown("\n".join(checks))
+    st.divider()
+    st.caption("Setup & credentials → **Administrator** section below.")
 
 # --- Hero ---
 st.markdown(
@@ -314,6 +361,25 @@ if analyze_submitted:
                             items.extend(ocr_items)
                         st.success(f"OCR: **{len(ocr_items)}** segment(s) added.")
 
+            items = deduplicate_evidence(items)
+
+            gmail_count = sum(1 for i in items if i.get("source") == "gmail")
+            upload_count = sum(
+                1 for i in items if i.get("source") in ("document", "screenshot")
+            )
+            paste_count = sum(1 for i in items if i.get("source") == "pasted")
+            if items:
+                parts = []
+                if gmail_count:
+                    parts.append(f"{gmail_count} Gmail")
+                if upload_count:
+                    parts.append(f"{upload_count} uploads")
+                if paste_count:
+                    parts.append(f"{paste_count} pasted")
+                st.info(
+                    f"Evidence assembled: {' + '.join(parts)} = **{len(items)}** items total."
+                )
+
             evidence_json = merge_evidence_json(items)
             st.session_state.last_evidence_items = items
             st.session_state.last_evidence_paths = evidence_paths
@@ -386,7 +452,7 @@ if st.session_state.last_grok:
         "operator-locked when you picked **Project state**; otherwise model-inferred."
     )
     tab_analysis, tab_draft, tab_cites, tab_technical = st.tabs(
-        ["Analysis", "Draft", "Citations", "Technical"]
+        ["📋 Analysis", "✏️ Draft", "📚 Citations", "⚙️ Technical"]
     )
 
     with tab_analysis:
@@ -402,7 +468,7 @@ if st.session_state.last_grok:
         st.download_button(
             label="Download draft (.txt)",
             data=(st.session_state.get("draft_preview") or "").encode("utf-8"),
-            file_name="elite_business_counsel_draft.txt",
+            file_name="sal_skyline_draft.txt",
             mime="text/plain",
             key="download_draft_txt",
             use_container_width=True,
@@ -411,10 +477,10 @@ if st.session_state.last_grok:
     with tab_cites:
         cites = grok.get("citations") or []
         if cites:
-            for c in cites:
-                st.write(f"- {c}")
+            for i, c in enumerate(cites, 1):
+                st.markdown(f"**{i}.** {c}")
         else:
-            st.caption("No citations returned.")
+            st.caption("No citations returned by the model.")
 
     with tab_technical:
         st.caption("Grok pipeline metadata.")
@@ -429,6 +495,24 @@ if st.session_state.last_grok:
             merge_evidence_json(st.session_state.last_evidence_items),
             language="json",
         )
+
+        all_attachments = []
+        for item in st.session_state.last_evidence_items:
+            for att in item.get("attachments", []):
+                all_attachments.append(
+                    {
+                        "filename": att,
+                        "source_message": item.get("message_id", ""),
+                        "subject": item.get("subject", ""),
+                    }
+                )
+        if all_attachments:
+            st.caption(f"**Attachments found:** {len(all_attachments)}")
+            for a in all_attachments:
+                subj = (a["subject"] or "")[:60]
+                st.text(f"  📎 {a['filename']}  (from: {subj})")
+        else:
+            st.caption("No attachments found in retrieved messages.")
 
 if draft_btn:
     body = (st.session_state.get("draft_preview") or "").strip()
@@ -535,3 +619,10 @@ with st.expander("Administrator · connectivity & credentials", expanded=False):
             "review-export audit rows—no vectors or semantic search. Retention and deletion stay manual unless "
             "counsel approves a written policy."
         )
+
+# --- Footer ---
+st.divider()
+st.caption(
+    "Sal · Skyline Lawyer · v0.1.0 · "
+    "This software does not provide legal advice."
+)

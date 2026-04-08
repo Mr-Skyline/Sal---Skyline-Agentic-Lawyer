@@ -9,6 +9,7 @@ from unittest.mock import MagicMock
 
 from src.sal.evidence import (
     claim_to_query_keywords,
+    deduplicate_evidence,
     download_gmail_attachment,
     download_message_attachments,
     merge_evidence_json,
@@ -112,6 +113,39 @@ class TestMergeEvidenceJson:
         items = [{"text": "caf\u00e9 \u2014 payment"}]
         result = merge_evidence_json(items)
         assert "caf\u00e9" in result
+
+
+# ---------- deduplicate_evidence ----------
+
+class TestDeduplicateEvidence:
+    def test_deduplicate_gmail_messages(self):
+        items = [
+            {"source": "gmail", "message_id": "m1", "text": "a"},
+            {"source": "gmail", "message_id": "m1", "text": "b"},
+        ]
+        out = deduplicate_evidence(items)
+        assert len(out) == 1
+        assert out[0]["message_id"] == "m1"
+
+    def test_deduplicate_different_sources(self):
+        items = [
+            {"source": "gmail", "message_id": "m1", "text": "same"},
+            {"source": "pasted", "text": "different pasted body"},
+        ]
+        out = deduplicate_evidence(items)
+        assert len(out) == 2
+
+    def test_deduplicate_pasted_same_text(self):
+        text = "identical line"
+        items = [
+            {"source": "pasted", "text": text},
+            {"source": "pasted", "text": text},
+        ]
+        out = deduplicate_evidence(items)
+        assert len(out) == 1
+
+    def test_deduplicate_empty_list(self):
+        assert deduplicate_evidence([]) == []
 
 
 # ---------- partition_evidence_upload_paths ----------

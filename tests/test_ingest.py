@@ -1,10 +1,12 @@
 """Tests for src.sal.ingest — sync state, query builder, and default paths."""
 import json
 from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 from src.sal.ingest import (
     cc_monitor_gmail_query,
     default_state_path,
+    fetch_thread_evidence,
     format_sync_summary,
     load_sync_state,
     save_sync_state,
@@ -108,3 +110,19 @@ def test_format_sync_summary_zero_values():
     assert out["human_summary"] == (
         "Cycle 0: 0 threads seen, 0 archived, 0 unchanged"
     )
+
+
+# ---------- fetch_thread_evidence ----------
+
+
+def test_fetch_thread_evidence_delegates_to_fetch_messages():
+    svc = MagicMock()
+    fake_items = [{"source": "gmail", "message_id": "m1", "text": "hi"}]
+    with patch("src.sal.ingest.fetch_messages_for_evidence") as mock_fetch:
+        mock_fetch.return_value = (fake_items, "thread:t1")
+        items, desc = fetch_thread_evidence(svc, "t1", max_messages=42)
+        mock_fetch.assert_called_once_with(
+            svc, "me", "", thread_id="t1", max_messages=42
+        )
+        assert items == fake_items
+        assert desc == "thread:t1"
