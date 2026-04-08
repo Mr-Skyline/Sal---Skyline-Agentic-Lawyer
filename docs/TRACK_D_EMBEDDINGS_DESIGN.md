@@ -14,7 +14,7 @@ Enable **semantic / similarity search** across matter-adjacent text (e.g. past t
 
 | Source | Contents | Sensitivity |
 |--------|----------|-------------|
-| Gmail threads (archived by `sync_worker`) | Subjects, bodies, headers | High (client / third-party PII) |
+| Gmail threads (archived by `src/sal/sync_worker`) | Subjects, bodies, headers | High (client / third-party PII) |
 | `skyline_review/*.md` | Sal analysis + intake + evidence excerpt | High |
 | Supabase `correspondence_threads` | Metadata today (subject, ids, paths) — **not** full bodies unless schema extended | Lower if bodies stay off-DB |
 | OCR outputs (optional) | Image-derived text from evidence | High |
@@ -38,19 +38,19 @@ Final chunk sizes depend on the chosen embedding model’s context limit and cos
 
 | Piece | Likely location / pattern |
 |-------|---------------------------|
-| Embedding job CLI or worker | New module (e.g. `embed_jobs.py`) or extension of `sync_worker` **only if** decoupled and feature-flagged |
+| Embedding job CLI or worker | New module under `src/sal/` (e.g. `embed_jobs.py`) or extension of `src/sal/sync_worker` **only if** decoupled and feature-flagged |
 | Vector store | Supabase `pgvector` (same project as metadata) **or** external hosted vector DB — decision TBD |
 | Config | New env vars in `.env.example` only after approval (e.g. model id, dimensions, batch size) |
 | UI | Streamlit search panel — **Agent 1–2** domain once APIs exist |
 
-**Today:** `db.py` and `supabase_schema.sql` are **metadata-only**; no vector columns are assumed.
+**Today:** `src/sal/db.py` and `docs/supabase_schema.sql` are **metadata-only**; no vector columns are assumed.
 
 ---
 
 ## Privacy & boundaries
 
 - **No legal conclusions in embedding pipelines:** Classifiers or tags derived from embeddings must not be presented as “deadline” or “outcome” advice; they are search aids only.
-- **Minimize retention of vectors:** If vectors are dropped when matters close, document that in the written retention policy (counsel-owned checklist in `SKYLINE_BUILD_REVIEW.md`).
+- **Minimize retention of vectors:** If vectors are dropped when matters close, document that in the written retention policy (counsel-owned checklist in `docs/SKYLINE_BUILD_REVIEW.md`).
 - **Third-party APIs:** If embeddings run outside the firm’s Supabase/tenant, record **what text leaves the boundary**, logging redaction options, and whether zero-retention / BAA-style terms apply (business/legal, not coded here).
 
 ---
@@ -66,6 +66,6 @@ Final chunk sizes depend on the chosen embedding model’s context limit and cos
 
 ## References
 
-- Phase table: `SKYLINE_BUILD_REVIEW.md`
-- Metadata schema: `supabase_schema.sql`
-- Ops: `OPERATIONS_ELITE.txt`, `verify_setup.py --supabase-ping`
+- Phase table: `docs/SKYLINE_BUILD_REVIEW.md`
+- Metadata schema: `docs/supabase_schema.sql`
+- Ops: `docs/OPERATIONS_ELITE.txt`, `python -m src.sal.verify_setup --supabase-ping`

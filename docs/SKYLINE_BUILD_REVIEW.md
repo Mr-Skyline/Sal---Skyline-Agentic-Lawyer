@@ -93,3 +93,4 @@ The checkboxes below are **workflow trackers** for licensed counsel review. They
 - **Quick smoke:** `py scripts/smoke_check.py` for fast module imports after dependency churn.
 - **Track D design:** `docs/TRACK_D_EMBEDDINGS_DESIGN.md`
 - **Operator runbook:** `docs/OPERATIONS_ELITE.txt` — first-run order, quick failure index, shipped vs roadmap (keeps Sal/UI claims aligned with releases).
+- **CI/CD:** GitHub Actions runs pytest on Python 3.11 + 3.12 on every push and PR. Ruff lint check included.

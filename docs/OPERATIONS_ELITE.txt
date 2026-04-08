@@ -22,13 +22,13 @@ Canonical project folder: C:\Users\travi\Projects\AI Lawyer Build
    A) "not canonical root" in verify_setup → duplicate clone; open the Projects path or reconcile copies.
    B) verify_setup --strict exits 1 → missing XAI_API_KEY, credentials.json, and/or token.pickle; run python3 scripts/oauth_login.py from this folder.
    C) Gmail errors after token worked → re-run python3 scripts/oauth_login.py from the project folder; dispute_agent_log.jsonl for GmailEvidenceError / pipeline_error.
-   D) verify_setup.py --supabase-ping exits 2 → install requirements-supabase.txt; set SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY; run docs/supabase_schema.sql (both tables).
+   D) python3 -m src.sal.verify_setup --supabase-ping exits 2 → install requirements-supabase.txt; set SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY; run docs/supabase_schema.sql (both tables).
    E) sync_worker fails → writable CORRESPONDENCE_ARCHIVE_DIR; AGENT_GMAIL_ADDRESS matches token.pickle account; python3 -m src.sal.sync_worker --dry-run first.
    F) Grok / Sal errors → Technical tab JSON; dispute_agent_log.jsonl (sal_run_error).
 
 0c) SHIPPED VS ROADMAP (truth for operators — do not over-promise)
    Shipped: Streamlit intake + Gmail evidence + Sal (Grok) + review Markdown under SKYLINE_REVIEW_DIR; optional Supabase metadata only (thread upserts + review-export audit rows); sync_worker polling with --once / --dry-run / Task Scheduler; manual retention (no product auto-delete).
-   Not shipped: Vector embeddings / RAG; Gmail Pub/Sub push; proactive alerts beyond polling; automatic destruction of matter files. Prompt phases 6–8 and SKYLINE_BUILD_REVIEW.md list roadmap until marked done.
+   Not shipped: Vector embeddings / RAG; Gmail Pub/Sub push; proactive alerts beyond polling; automatic destruction of matter files. Prompt phases 6–8 and docs/SKYLINE_BUILD_REVIEW.md list roadmap until marked done.
 
 1) STREAMLIT (interactive drafting)
    - New venv: run scripts/bootstrap_venv.cmd from the canonical folder (prefers Python 3.12 / 3.11).
