@@ -1,4 +1,4 @@
-Elite Business Counsel — operations (dedicated inbox + archive + optional DB)
+Sal · Skyline Lawyer — operations (dedicated inbox + archive + optional DB)
 ================================================================================
 
 Canonical project folder: C:\Users\travi\Projects\AI Lawyer Build

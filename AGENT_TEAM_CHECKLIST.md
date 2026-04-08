@@ -15,7 +15,7 @@
 - [ ] **Skim `AGENTS.md`** — one-page entry; this checklist is the detailed playbook.
 - [ ] **Read this checklist** for the current task — including **§2 Lanes** if multiple agents or subagents are active.
 - [ ] **Read project rules:** `.cursor/rules/*.mdc` (especially autonomy + team checklist rule).
-- [ ] **Canonical project root:** active build is only `C:\Users\travi\Projects\AI Lawyer Build` (`INTENDED_PROJECT_ROOT` in `config.py`). Open Cursor and terminals there. If you open a different folder, `py verify_setup.py` warns — use one tree only unless you are explicitly reconciling copies.
+- [ ] **Canonical project root:** active build is only `C:\Users\travi\Projects\AI Lawyer Build` (`INTENDED_PROJECT_ROOT` in `src/sal/config.py`). Open Cursor and terminals there. If you open a different folder, `python -m src.sal.verify_setup` warns — use one tree only unless you are explicitly reconciling copies.
 - [ ] **Secrets:** never commit `.env`, `credentials.json`, or `token.pickle`; never paste API keys or tokens into chat or docs.
 - [ ] **Windows Python:** do not assume `python` works. Prefer `.\.venv\Scripts\python.exe`, or `py -3.12` / `py -3.11`, then `py -3`. Use `bootstrap_venv.cmd` to create `.venv` if missing.
 - [ ] **Scope:** only change what the task requires; match existing style and patterns in touched files.
@@ -26,13 +26,13 @@
 **Goal:** Multiple agents (or parent + subagents) must not redo the same investigation, edit the same slice twice, or contradict each other’s in-flight work.
 
 - [ ] **Know your role:** If you are a **subagent** (explore, shell, task runner, etc.), your job is to **return a tight summary** (findings, file paths, commands run, blockers). The **parent** agent merges that into the plan and applies code changes unless the user explicitly delegated implementation to you alone.
-- [ ] **Claim a lane at the start:** In your first substantive reply for the task, be explicit: *what you are doing* and *what you are not redoing* (e.g. “Implementing `analysis.py` only; not re-running Gmail OAuth.”).
+- [ ] **Claim a lane at the start:** In your first substantive reply for the task, be explicit: *what you are doing* and *what you are not redoing* (e.g. “Implementing `src/sal/analysis.py` only; not re-running Gmail OAuth.”).
 - [ ] **Read before you research:** Skim the **current user message + recent thread** for another agent’s conclusions. If they already listed files or root cause, **build on it** — do not re-grep or re-read the whole repo from zero unless their output is wrong or incomplete.
 - [ ] **Single writer per slice:** For a given file + feature, **one** agent should own edits per handoff. If you receive a handoff, note *files already modified* and continue from there instead of re-applying the same patch.
 - [ ] **PR / CI / merge babysitting:** Treat **PR merge-readiness** (comments, conflicts, CI loops) as its own lane. Use the user’s **babysit** skill when that is the ask; do not mix large unrelated refactors into that pass unless the user asked for both.
 - [ ] **No parallel duplicate tasks:** If the user launched two agents on the same ticket, **diff against reality**: check git status / open files / last message for what is already done before you implement.
-- [ ] **Sal lane (when delegated elsewhere):** If the user says **another agent owns the Sal project** (prompt text, `sal_prompt.py`, Sal/Grok wiring), **do not** re-implement or “fix” that slice here unless they explicitly route the task to you. **Do** keep **§7 Changelog** and related bullets accurate when their work changes how the team should run.
-- [ ] **Roadmap & hygiene (Agent 3):** `SKYLINE_BUILD_REVIEW.md`, `TRACK_D_*.md`, `OPERATIONS_ELITE.txt`, checklist changelog, `.env.example` / `SECRETS_TEMPLATE`, bootstrap/requirements notes — **not** feature logic in `main.py` / `analysis.py` / `sync_worker.py` / `ingest.py` except **factual** operator copy or broken doc references.
+- [ ] **Sal lane (when delegated elsewhere):** If the user says **another agent owns the Sal project** (prompt text, `src/sal/sal_prompt.py`, Sal/Grok wiring), **do not** re-implement or “fix” that slice here unless they explicitly route the task to you. **Do** keep **§7 Changelog** and related bullets accurate when their work changes how the team should run.
+- [ ] **Roadmap & hygiene (Agent 3):** `docs/SKYLINE_BUILD_REVIEW.md`, `docs/TRACK_D_*.md`, `docs/OPERATIONS_ELITE.txt`, checklist changelog, `.env.example` / `docs/SECRETS_TEMPLATE.txt`, bootstrap/requirements notes — **not** feature logic in `main.py` / `src/sal/analysis.py` / `src/sal/sync_worker.py` / `src/sal/ingest.py` except **factual** operator copy or broken doc references.
 
 ## 3. Environment & diagnostics
 
@@ -100,3 +100,4 @@
 | 2026-04-07 | CI workflow           | Added `.github/workflows/ci.yml`: Ubuntu, Python 3.11/3.12, `pip install -r requirements-dev.txt`, `pytest tests/`. `APITimeoutError` is a subclass of `APIConnectionError` in openai — check timeout before connection in `friendly_sal_api_message`. |
 | 2026-04-08 | PR #2 merge main      | Resolved conflicts: CI combines `cursor/**` push triggers + pip cache + verbose pytest + import smoke; `src/sal/analysis.py` keeps brace JSON extract, merges `friendly_sal_api_message` chain + timeout-before-connection + single-quote string literals in `_extract_json_object`; `_normalize_sal_fields` handles missing `analysis` key. |
 | 2026-04-08 | dotenv override       | `sync_worker.py` + `verify_setup.py`: `load_dotenv(..., override=False)` so subprocess/tests/Task Scheduler env is not clobbered by `.env`; `test_run_checks_no_xai_key` mocks `load_dotenv` when asserting missing `XAI_API_KEY`. |
+| 2026-04-08 | Loose ends cleanup | Stale path refs + old branding fixed across AGENTS, checklist §1-§5, OPERATIONS header. |
