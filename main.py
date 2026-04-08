@@ -23,6 +23,7 @@ from src.sal.config import (
 )
 from src.sal.draft import create_gmail_draft
 from src.sal.evidence import (
+    deduplicate_evidence,
     fetch_messages_for_evidence,
     get_gmail_service,
     merge_evidence_json,
@@ -359,6 +360,24 @@ if analyze_submitted:
                             ocr_items = parse_screenshots_with_glmocr(ocr_paths)
                             items.extend(ocr_items)
                         st.success(f"OCR: **{len(ocr_items)}** segment(s) added.")
+
+            items = deduplicate_evidence(items)
+            gmail_count = sum(1 for i in items if i.get("source") == "gmail")
+            upload_count = sum(
+                1 for i in items if i.get("source") in ("document", "screenshot")
+            )
+            paste_count = sum(1 for i in items if i.get("source") == "pasted")
+            if items:
+                parts = []
+                if gmail_count:
+                    parts.append(f"{gmail_count} Gmail")
+                if upload_count:
+                    parts.append(f"{upload_count} uploads")
+                if paste_count:
+                    parts.append(f"{paste_count} pasted")
+                st.info(
+                    f"Evidence assembled: {' + '.join(parts)} = **{len(items)}** items total."
+                )
 
             evidence_json = merge_evidence_json(items)
             st.session_state.last_evidence_items = items
