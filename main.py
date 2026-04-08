@@ -54,7 +54,7 @@ if "draft_preview" not in st.session_state:
     st.session_state.draft_preview = ""
 
 st.set_page_config(
-    page_title="Elite Business Counsel",
+    page_title="Sal · Skyline Lawyer",
     layout="wide",
     page_icon="⚖️",
     initial_sidebar_state="collapsed",
@@ -113,7 +113,7 @@ _inject_theme_css()
 
 # --- Minimal sidebar (navigation + one-line cue) ---
 with st.sidebar:
-    st.markdown("### Elite Business Counsel")
+    st.markdown("### Sal · Skyline Lawyer")
     st.caption("Primary workspace is the main panel. Technical setup lives at the bottom.")
     if ready:
         st.success("Connectivity ready.")
@@ -125,9 +125,9 @@ st.markdown(
     """
     <div style="margin-bottom: 1.25rem;">
         <p style="color: #C9A227; font-size: 0.75rem; letter-spacing: 0.28em; text-transform: uppercase; margin: 0 0 0.35rem 0;">Confidential workspace</p>
-        <h1 style="margin: 0; font-weight: 600; color: #F5F2EB;">Elite Business Counsel</h1>
+        <h1 style="margin: 0; font-weight: 600; color: #F5F2EB;">Sal · Skyline Lawyer</h1>
         <p style="color: #9a9590; margin: 0.5rem 0 0 0; max-width: 42rem;">
-            Structured correspondence and dispute drafting with Gmail context, document intake, and Grok-assisted analysis.
+            Sal delivers Grok-powered correspondence analysis, dispute drafting, and Gmail integration for Skyline Painting.
         </p>
     </div>
     """,
@@ -140,7 +140,7 @@ if not ready:
     if not cred_ok:
         st.error("Add **credentials.json** (Google Desktop OAuth client).")
     if not tok_ok:
-        st.warning("Complete Gmail sign-in once: from this folder run **`py oauth_login.py`**.")
+        st.warning("Complete Gmail sign-in once: from the project root run **`python scripts/oauth_login.py`**.")
 
 with st.expander("Legal notice", expanded=False):
     st.caption(
@@ -468,7 +468,7 @@ with st.expander("Administrator · connectivity & credentials", expanded=False):
     st.markdown(
         "| Check | Status |\n| --- | --- |\n"
         f"| credentials.json | {'OK' if cred_ok else 'Missing'} |\n"
-        f"| token.pickle | {'OK' if tok_ok else 'Run `py oauth_login.py`'} |\n"
+        f"| token.pickle | {'OK' if tok_ok else 'Run `python scripts/oauth_login.py`'} |\n"
         f"| XAI_API_KEY | {'OK' if xai_ok else 'Missing'} |\n"
         f"| OCR key | {'OK' if ocr_ok else 'Optional'} |\n"
         f"| SKYLINE_REVIEW_DIR | `{SKYLINE_REVIEW_DIR}` (subfolders `CO`, `FL`, … or `_unspecified`) |\n"
@@ -513,13 +513,13 @@ with st.expander("Administrator · connectivity & credentials", expanded=False):
 
     st.markdown(
         f"- Manual: edit `.env` or place files in `{ROOT}`\n"
-        f"- Template: `SECRETS_TEMPLATE.txt` · Log: `{LOG_FILE.name}`"
+        f"- Template: `docs/SECRETS_TEMPLATE.txt` · Log: `{LOG_FILE.name}`"
     )
 
     with st.expander("Dedicated inbox & sync (optional)", expanded=False):
         st.markdown(
             "Set **`AGENT_GMAIL_ADDRESS`** and **`CORRESPONDENCE_ARCHIVE_DIR`** in `.env`, then run "
-            "`py sync_worker.py` or `py sync_worker.py --once`.\n\n"
+            "`python -m src.sal.sync_worker` or `python -m src.sal.sync_worker --once`.\n\n"
             "Optional Supabase: **`SUPABASE_URL`**, **`SUPABASE_SERVICE_ROLE_KEY`**, and **`supabase_schema.sql`**."
         )
         st.caption(
