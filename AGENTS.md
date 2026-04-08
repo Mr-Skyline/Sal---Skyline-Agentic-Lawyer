@@ -72,6 +72,7 @@ This exercises `analysis.py` → `sal_prompt.py` → xAI Grok API → JSON parse
 ### Gotchas
 
 - The `.cmd` / `.ps1` scripts in the repo are Windows-only; use the Linux equivalents above.
-- Gmail OAuth (`oauth_login.py`) requires a browser and `credentials.json` from Google Cloud Console — this cannot be completed in headless Cloud Agent VMs. The Streamlit UI still loads and shows alerts for missing credentials.
+- **Gmail OAuth:** requires `credentials.json` + browser sign-in on the VM Desktop pane. Use `OAUTH_OPEN_BROWSER=1` so `run_local_server` auto-opens Chrome on the VM. The Google Cloud project (`sal-skyline-agentic-lawyer-int`) OAuth consent screen must be **External + Testing** with the Gmail account added as a test user — "Internal" silently drops the auth code from redirects.
 - The Streamlit "Analyze & draft" form always tries Gmail fetch before calling Grok. To test Grok analysis in isolation, call `analyze_and_draft()` directly from Python (see hello world above).
-- Optional extras: `requirements-ocr.txt` (ZHIPU OCR), `requirements-supabase.txt` (metadata DB). Neither is needed for core dev/testing.
+- Optional extras: `requirements-ocr.txt` (ZHIPU OCR), `requirements-supabase.txt` (metadata DB). Install both for full functionality.
+- **Supabase:** URL is `https://jcanbehhpyvsaulkykgl.supabase.co`. Schema (`correspondence_threads` + `skyline_review_exports`) is applied via `supabase_schema.sql`.
