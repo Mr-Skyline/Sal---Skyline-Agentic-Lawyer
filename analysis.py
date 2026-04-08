@@ -152,16 +152,20 @@ def friendly_sal_api_message(exc: BaseException) -> Optional[str]:
                     "Grok returned an empty completion. Check XAI_API_KEY, model name, "
                     "and try again."
                 )
+        if isinstance(err, APITimeoutError):
+            return (
+                "Timeout: Grok request timed out. Retry with less evidence or a shorter prompt."
+            )
         if isinstance(err, APIConnectionError):
             return (
                 "Connection to Grok failed. Check your network, VPN, and firewall, then retry."
             )
-        if isinstance(err, APITimeoutError):
-            return "Grok request timed out. Retry with less evidence or a shorter prompt."
         if isinstance(err, AuthenticationError):
             return "Grok rejected the API key. Verify XAI_API_KEY in your environment."
         if isinstance(err, RateLimitError):
-            return "Grok rate limit hit. Wait briefly and retry, or reduce request volume."
+            return (
+                "Rate limit: Grok is throttling requests. Wait briefly and retry, or reduce volume."
+            )
         if isinstance(err, InternalServerError):
             return "Grok returned a server error (upstream). Retry after a short wait."
         if isinstance(err, APIStatusError):
