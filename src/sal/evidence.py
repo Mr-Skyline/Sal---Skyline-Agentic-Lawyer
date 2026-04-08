@@ -345,6 +345,52 @@ def fetch_messages_for_evidence(
     return out, query_description
 
 
+def download_gmail_attachment(
+    service,
+    message_id: str,
+    attachment_id: str,
+    filename: str,
+    dest_dir: str,
+) -> str:
+    """Download a Gmail attachment to dest_dir. Returns the saved file path."""
+    att = gmail_execute(
+        service.users().messages().attachments().get(
+            userId="me", messageId=message_id, id=attachment_id
+        )
+    )
+    data = base64.urlsafe_b64decode(att["data"])
+    path = os.path.join(dest_dir, filename)
+    with open(path, "wb") as f:
+        f.write(data)
+    return path
+
+
+def download_message_attachments(
+    service,
+    message_id: str,
+    payload: Dict[str, Any],
+    dest_dir: str,
+) -> List[str]:
+    """Download all attachments from a message payload. Returns list of saved file paths."""
+    paths = []
+    for part in payload.get("parts") or []:
+        filename = part.get("filename")
+        att_id = part.get("body", {}).get("attachmentId")
+        if filename and att_id:
+            try:
+                p = download_gmail_attachment(
+                    service, message_id, att_id, filename, dest_dir
+                )
+                paths.append(p)
+            except Exception as e:
+                log_event(
+                    "attachment_download_error",
+                    error=str(e),
+                    extra={"message_id": message_id, "filename": filename},
+                )
+    return paths
+
+
 PASTE_PATTERNS = [
     re.compile(
         r"^(?P<date>\d{1,2}/\d{1,2}/\d{2,4})\s+(?P<dir>From|To):\s*(?P<who>.+?)\s*[-–—]\s*(?P<text>.+)$",

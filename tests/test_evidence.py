@@ -1,21 +1,23 @@
 """Tests for src.sal.evidence — pure/local functions only (no Gmail API)."""
 from __future__ import annotations
 
-import io
 import json
 import os
 import tempfile
 from unittest.mock import MagicMock
 
+import base64
+
 from src.sal.evidence import (
     claim_to_query_keywords,
+    download_gmail_attachment,
+    download_message_attachments,
     merge_evidence_json,
     parse_document_files,
     parse_pasted_texts,
     partition_evidence_upload_paths,
     save_uploaded_files,
 )
-
 
 # ---------- claim_to_query_keywords ----------
 
@@ -211,3 +213,104 @@ class TestSaveUploadedFiles:
 
     def test_none_upload(self):
         assert save_uploaded_files(None) == []
+
+
+# ---------- download_gmail_attachment / download_message_attachments ----------
+
+
+class TestDownloadGmailAttachment:
+    def test_returns_path_and_writes_bytes(self):
+        raw = b"hello attachment"
+        b64 = base64.urlsafe_b64encode(raw).decode("ascii")
+
+        req = MagicMock()
+        req.execute.return_value = {"data": b64}
+
+        attachments = MagicMock()
+        attachments.get.return_value = req
+
+        messages = MagicMock()
+        messages.attachments.return_value = attachments
+
+        users = MagicMock()
+        users.messages.return_value = messages
+
+        service = MagicMock()
+        service.users.return_value = users
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = download_gmail_attachment(
+                service, "msg-1", "att-xyz", "doc.txt", tmp
+            )
+            assert path == os.path.join(tmp, "doc.txt")
+            assert os.path.isfile(path)
+            with open(path, "rb") as f:
+                assert f.read() == raw
+
+        attachments.get.assert_called_with(
+            userId="me", messageId="msg-1", id="att-xyz"
+        )
+        req.execute.assert_called_once()
+
+
+class TestDownloadMessageAttachments:
+    def test_two_attachments_both_downloaded(self):
+        raw_a, raw_b = b"file a", b"file b"
+        b64_a = base64.urlsafe_b64encode(raw_a).decode("ascii")
+        b64_b = base64.urlsafe_b64encode(raw_b).decode("ascii")
+
+        req_a = MagicMock()
+        req_a.execute.return_value = {"data": b64_a}
+        req_b = MagicMock()
+        req_b.execute.return_value = {"data": b64_b}
+
+        attachments = MagicMock()
+        attachments.get.side_effect = [req_a, req_b]
+
+        messages = MagicMock()
+        messages.attachments.return_value = attachments
+
+        users = MagicMock()
+        users.messages.return_value = messages
+
+        service = MagicMock()
+        service.users.return_value = users
+
+        with tempfile.TemporaryDirectory() as tmp:
+            payload = {
+                "parts": [
+                    {
+                        "filename": "a.bin",
+                        "body": {"attachmentId": "id-a"},
+                    },
+                    {
+                        "filename": "b.bin",
+                        "body": {"attachmentId": "id-b"},
+                    },
+                ]
+            }
+            paths = download_message_attachments(
+                service, "mid-99", payload, tmp
+            )
+            assert len(paths) == 2
+            assert set(paths) == {
+                os.path.join(tmp, "a.bin"),
+                os.path.join(tmp, "b.bin"),
+            }
+            with open(os.path.join(tmp, "a.bin"), "rb") as f:
+                assert f.read() == raw_a
+            with open(os.path.join(tmp, "b.bin"), "rb") as f:
+                assert f.read() == raw_b
+
+    def test_no_attachments_returns_empty(self):
+        service = MagicMock()
+        with tempfile.TemporaryDirectory() as tmp:
+            assert (
+                download_message_attachments(
+                    service, "mid", {"parts": []}, tmp
+                )
+                == []
+            )
+            assert (
+                download_message_attachments(service, "mid", {}, tmp) == []
+            )

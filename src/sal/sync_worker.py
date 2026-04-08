@@ -1,9 +1,9 @@
 """
 Continuous Gmail ingest for a dedicated agent inbox (CC/To monitoring).
 
-  py sync_worker.py              # loop: poll every SYNC_POLL_INTERVAL_SEC
-  py sync_worker.py --once       # single cycle (good for Task Scheduler)
-  py sync_worker.py --dry-run    # list threads that would archive/skip; no disk writes
+  python -m src.sal.sync_worker              # loop: poll every SYNC_POLL_INTERVAL_SEC
+  python -m src.sal.sync_worker --once       # single cycle (good for Task Scheduler)
+  python -m src.sal.sync_worker --dry-run    # list threads that would archive/skip; no disk writes
 
 Requires: OAuth token for the agent Gmail account and AGENT_GMAIL_ADDRESS.
 CORRESPONDENCE_ARCHIVE_DIR is required for normal sync, not for --dry-run.
@@ -14,14 +14,26 @@ State file correspondence_sync_state.json is updated atomically (temp + replace)
 Loop mode uses exponential backoff between errors, capped by SYNC_WORKER_BACKOFF_CAP_SEC.
 Set SYNC_WORKER_MAX_CONSECUTIVE_ERRORS>0 to exit after that many failures in a row.
 --once exits with code 1 if the sync cycle raises.
+SIGINT/SIGTERM set a shutdown flag; the main loop exits gracefully on the next wait.
 """
 from __future__ import annotations
 
 import argparse
 import os
+import signal
 import sys
-import time
+import threading
 from pathlib import Path
+
+_shutdown = threading.Event()
+
+
+def _handle_signal(signum, frame):
+    _shutdown.set()
+
+
+signal.signal(signal.SIGINT, _handle_signal)
+signal.signal(signal.SIGTERM, _handle_signal)
 
 from dotenv import load_dotenv
 
@@ -131,12 +143,16 @@ def main() -> None:
                 backoff_cap,
                 int(30 * (2 ** min(consecutive - 1, 6))),
             )
-            time.sleep(delay)
+            if _shutdown.wait(timeout=delay):
+                log_event("sync_worker_shutdown", extra={"phase": "error_backoff"})
+                break
             continue
 
         if args.once:
             break
-        time.sleep(max(30, interval))
+        if _shutdown.wait(timeout=max(30, interval)):
+            log_event("sync_worker_shutdown", extra={"phase": "main_loop"})
+            break
 
     sys.exit(0)
 
