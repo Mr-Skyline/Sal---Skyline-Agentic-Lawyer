@@ -27,6 +27,7 @@ From the project root (with `.venv` activated if you use one):
 
 ```powershell
 pip install -r requirements-dev.txt
+# or: pip install -e ".[dev]"
 pytest
 ```
 

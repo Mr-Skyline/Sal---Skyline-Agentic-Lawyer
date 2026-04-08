@@ -17,7 +17,7 @@
 - [ ] **Read project rules:** `.cursor/rules/*.mdc` (especially autonomy + team checklist rule).
 - [ ] **Canonical project root:** use **one** checkout of this repo. Optional `INTENDED_PROJECT_ROOT` in `.env` pins the path `verify_setup.py` checks against (see `src/sal/config.py`). Open Cursor and terminals on that tree only — use one tree unless you are explicitly reconciling copies.
 - [ ] **Secrets:** never commit `.env`, `credentials.json`, or `token.pickle`; never paste API keys or tokens into chat or docs.
-- [ ] **Windows Python:** do not assume `python` works. Prefer `.\.venv\Scripts\python.exe`, or `py -3.12` / `py -3.11`, then `py -3`. Use `bootstrap_venv.cmd` to create `.venv` if missing.
+- [ ] **Windows Python:** do not assume `python` works. Prefer `.\.venv\Scripts\python.exe`, or `py -3.12` / `py -3.11`, then `py -3`. Use `scripts\bootstrap_venv.cmd` (or root `bootstrap_venv.cmd` stub) to create `.venv` if missing.
 - [ ] **Scope:** only change what the task requires; match existing style and patterns in touched files.
 - [ ] **Release / review doc:** When you change **model claims vs code**, **PII/export posture**, or **phase track status**, skim **`SKYLINE_BUILD_REVIEW.md`** (“Each review pass” + phase table). Bump **`Last reviewed`** when you complete that review pass for the same session of work.
 
@@ -90,3 +90,4 @@
 | 2026-04-12 | Agent 3 playbook    | §2 Agent 3 lane; §3 `mirror_agent_docs` exclusions; §4 Sal stack wording (`load_sal_behavioral_text` + `sal_prompt` JSON/mode suffixes + `analysis.py` compose); `mirror_agent_docs.cmd` REM for non-mirrored files. |
 | 2026-04-12 | Single project root   | User: **only** `C:\Users\travi\Projects\AI Lawyer Build`. README + `SKYLINE_BUILD_REVIEW` + `SECRETS_TEMPLATE` + `run.cmd` + `config` comment; §3 checklist = one workspace, mirror script recovery-only; deleted stray `Windows PowerShell*.txt` from repo root. |
 | 2026-04-07 | Package infra | `pyproject.toml`, `src/sal/config.py`, `INTENDED_PROJECT_ROOT` env; scripts under `scripts/`; `.gitattributes`; path docs. |
+| 2026-04-07 | Package follow-up | README tests note `pip install -e ".[dev]"`; checklist bootstrap path; `scripts/run.cmd` in SKYLINE + OAUTH_STEPS. |

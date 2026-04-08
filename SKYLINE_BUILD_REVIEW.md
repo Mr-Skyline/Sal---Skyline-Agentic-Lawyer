@@ -18,7 +18,7 @@ Use this so parallel work does not collide.
 
 | **Build Sidekick #1** | **Build Sidekick #2** |
 |------------------------|-------------------------|
-| Python: `main.py`, `review_export.py`, `evidence.py`, `analysis.py`, `draft.py`, `gmail_retry.py` | `verify_setup.py`, `.env.example`, `SECRETS_TEMPLATE.txt`, `OAUTH_*.txt`, `run.cmd` |
+| Python: `main.py`, `review_export.py`, `evidence.py`, `analysis.py`, `draft.py`, `gmail_retry.py` | `verify_setup.py`, `.env.example`, `SECRETS_TEMPLATE.txt`, `OAUTH_*.txt`, `scripts/run.cmd` |
 | Supabase / `sync_worker.py` / `ingest.py` when touching data path | **Only** edit and run under your single repo checkout — no parallel “second repo” |
 | Tests / smoke imports | `SKYLINE_BUILD_REVIEW.md` checkbox + **Last reviewed** date |
 

@@ -43,7 +43,7 @@ PART B — Sign in from the app (creates token.pickle)
 
 1) Put credentials.json in the project folder (same folder as main.py).
 
-2) Start the app (your launcher or: run.cmd / streamlit run main.py).
+2) Start the app (your launcher or: scripts\run.cmd / streamlit run main.py).
 
 3) In the browser UI, click "Analyze & Draft" or "Create Gmail Draft"
    (that triggers Gmail and opens OAuth if needed).
