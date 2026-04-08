@@ -1,7 +1,7 @@
 """
 Quick Grok / Sal env sanity check without printing secrets.
 
-  py env_check.py
+  python scripts/env_check.py
   .venv\\Scripts\\python.exe env_check.py
 """
 from __future__ import annotations

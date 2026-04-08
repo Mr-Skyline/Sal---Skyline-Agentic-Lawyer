@@ -89,7 +89,7 @@ def main() -> None:
     print(
         "Fastest technical fix when Web keeps failing:\n"
         "  Create NEW OAuth client type **Desktop app** -> Download JSON -> replace credentials.json\n"
-        "  (file should have only 'installed' { ... }, no 'web' block) -> delete token.pickle -> py oauth_login.py\n"
+        "  (file should have only 'installed' { ... }, no 'web' block) -> delete token.pickle -> python scripts/oauth_login.py\n"
     )
 
 
