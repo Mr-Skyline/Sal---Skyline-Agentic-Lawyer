@@ -520,7 +520,7 @@ with st.expander("Administrator · connectivity & credentials", expanded=False):
         st.markdown(
             "Set **`AGENT_GMAIL_ADDRESS`** and **`CORRESPONDENCE_ARCHIVE_DIR`** in `.env`, then run "
             "`python -m src.sal.sync_worker` or `python -m src.sal.sync_worker --once`.\n\n"
-            "Optional Supabase: **`SUPABASE_URL`**, **`SUPABASE_SERVICE_ROLE_KEY`**, and **`supabase_schema.sql`**."
+            "Optional Supabase: **`SUPABASE_URL`**, **`SUPABASE_SERVICE_ROLE_KEY`**, and **`docs/supabase_schema.sql`**."
         )
         st.caption(
             "Shipped today: polling sync only (no Gmail push alerts). Supabase stores thread metadata and "

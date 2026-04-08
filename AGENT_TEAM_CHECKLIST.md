@@ -57,7 +57,7 @@
 - [ ] Execute fixes in-terminal when the task allows; avoid “you should run X” without running X yourself unless blocked (e.g. user-only OAuth browser step).
 - [ ] Optional: `py -m src.sal.verify_setup` or `py scripts/env_check.py` from project root when diagnosing environment issues.
 - [ ] Quick import sweep: `py scripts/smoke_check.py` before a big merge or after dependency changes.
-- [ ] Tests: `pytest` from project root (config in `pytest.ini`).
+- [ ] Tests: `pytest` from project root (config in `pyproject.toml`).
 
 ## 6. Before you stop (handoff)
 
