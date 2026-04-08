@@ -1,7 +1,3 @@
-Set-Location $PSScriptRoot
-if (Test-Path ".\.venv\Scripts\python.exe") {
-    & .\.venv\Scripts\python.exe .\env_check.py
-} else {
-    py .\env_check.py
-}
+# Forwarder: implementation in scripts\EnvCheck.ps1
+& "$PSScriptRoot\scripts\EnvCheck.ps1"
 exit $LASTEXITCODE
