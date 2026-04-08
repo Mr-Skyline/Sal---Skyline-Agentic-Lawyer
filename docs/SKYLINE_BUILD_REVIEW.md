@@ -89,6 +89,7 @@ The checkboxes below are **workflow trackers** for licensed counsel review. They
 - Prompt source of truth: `prompts/Skyline Lawyer – Full System Prompt.txt` (v2.1+).
 - **Repo structure:** See `STRUCTURE.md` at the project root for a full file map.
 - **Agent coordination:** `AGENT_TEAM_CHECKLIST.md` (living playbook), `AGENTS.md` (entry), `.cursor/rules/agent-team-checklist.mdc`.
+- **Test coverage:** All 13 `src/sal/` modules have unit tests. Run `python -m pytest tests/ -v` from root.
 - **Quick smoke:** `py scripts/smoke_check.py` for fast module imports after dependency churn.
 - **Track D design:** `docs/TRACK_D_EMBEDDINGS_DESIGN.md`
 - **Operator runbook:** `docs/OPERATIONS_ELITE.txt` — first-run order, quick failure index, shipped vs roadmap (keeps Sal/UI claims aligned with releases).
