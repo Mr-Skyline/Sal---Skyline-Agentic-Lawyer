@@ -20,12 +20,18 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8.0"]
+dev = ["pytest>=8.0", "ruff>=0.4.0"]
 ocr = ["glmocr>=0.1.4"]
 supabase = ["supabase>=2.4.0"]
 
 [project.scripts]
 sal-sync = "src.sal.sync_worker:main"
+
+[tool.ruff]
+target-version = "py311"
+line-length = 120
+select = ["E", "F", "W", "I"]
+ignore = ["E501"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

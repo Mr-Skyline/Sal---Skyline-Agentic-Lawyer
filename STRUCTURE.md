@@ -14,6 +14,13 @@
 | `pyproject.toml` | PEP 621 project metadata, dependencies, entry points, tool config (includes `[tool.pytest.ini_options]`) |
 | `.gitignore` | Secrets, venv, caches, local archives |
 | `.python-version` | Preferred Python version (pyenv) |
+| `Makefile` | Convenience targets: install, test, lint, smoke, run, sync |
+
+## `.github/workflows/`
+
+| File | Purpose |
+|---|---|
+| `ci.yml` | GitHub Actions: pytest + import smoke on Python 3.11/3.12 (push to `main` / `cursor/**`, PRs to `main`) |
 
 ## `src/sal/` — Core package
 
