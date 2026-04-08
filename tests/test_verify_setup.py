@@ -4,7 +4,6 @@ from unittest.mock import patch
 
 from src.sal.verify_setup import SetupStatus, run_checks, run_supabase_ping
 
-
 # ---------- SetupStatus namedtuple ----------
 
 def test_setup_status_fields():

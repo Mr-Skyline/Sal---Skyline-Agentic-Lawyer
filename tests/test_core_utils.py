@@ -10,7 +10,6 @@ from src.sal.sal_prompt import (
     run_mode_suffix,
 )
 
-
 # ---------- config: normalize_primary_state ----------
 
 def test_normalize_valid_states():

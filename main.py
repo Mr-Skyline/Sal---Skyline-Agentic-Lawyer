@@ -21,11 +21,6 @@ from src.sal.config import (
     SKYLINE_REVIEW_DIR,
     TOKEN_FILE,
 )
-from src.sal.review_export import (
-    default_client_label,
-    default_issue_keyword,
-    export_analysis_markdown,
-)
 from src.sal.draft import create_gmail_draft
 from src.sal.evidence import (
     fetch_messages_for_evidence,
@@ -38,6 +33,11 @@ from src.sal.evidence import (
     save_uploaded_files,
 )
 from src.sal.logger_util import log_event
+from src.sal.review_export import (
+    default_client_label,
+    default_issue_keyword,
+    export_analysis_markdown,
+)
 from src.sal.secrets_store import save_api_keys_to_dotenv, save_gmail_credentials_json
 from src.sal.verify_setup import run_checks
 
@@ -124,10 +124,12 @@ with st.sidebar:
 st.markdown(
     """
     <div style="margin-bottom: 1.25rem;">
-        <p style="color: #C9A227; font-size: 0.75rem; letter-spacing: 0.28em; text-transform: uppercase; margin: 0 0 0.35rem 0;">Confidential workspace</p>
+        <p style="color: #C9A227; font-size: 0.75rem; letter-spacing: 0.28em;
+            text-transform: uppercase; margin: 0 0 0.35rem 0;">Confidential workspace</p>
         <h1 style="margin: 0; font-weight: 600; color: #F5F2EB;">Sal · Skyline Lawyer</h1>
         <p style="color: #9a9590; margin: 0.5rem 0 0 0; max-width: 42rem;">
-            Sal delivers Grok-powered correspondence analysis, dispute drafting, and Gmail integration for Skyline Painting.
+            Sal delivers Grok-powered correspondence analysis, dispute drafting, and Gmail
+            integration for Skyline Painting.
         </p>
     </div>
     """,
@@ -172,8 +174,9 @@ with st.form("case_form", clear_on_submit=False):
     )
     with st.expander("Review file naming (optional)", expanded=False):
         st.caption(
-            "After **Analyze & draft**, a Markdown record is saved under **SKYLINE_REVIEW_DIR** in a subfolder "
-            "for that matter’s state (see **Project state** above, or Grok-inferred CO/FL/AZ/TX/NE, else `_unspecified`). "
+            "After **Analyze & draft**, a Markdown record is saved under **SKYLINE_REVIEW_DIR** "
+            "in a subfolder for that matter’s state (see **Project state** above, or Grok-inferred "
+            "CO/FL/AZ/TX/NE, else `_unspecified`). "
             "Leave blank to auto-fill client/issue from counterparty email and summary."
         )
         review_client = st.text_input(
@@ -481,7 +484,10 @@ with st.expander("Administrator · connectivity & credentials", expanded=False):
         st.code("\n".join(status.lines), language=None)
 
     st.subheader("Store secrets")
-    st.caption("Writes to `.env` and optionally `credentials.json`. Data is sent to xAI / Google only when you run analysis or drafts.")
+    st.caption(
+        "Writes to `.env` and optionally `credentials.json`. "
+        "Data is sent to xAI / Google only when you run analysis or drafts."
+    )
     xai_in = st.text_input("XAI_API_KEY (Grok)", type="password", key="store_xai")
     zhipu_in = st.text_input(
         "ZHIPU_API_KEY (OCR, optional)", type="password", key="store_zhipu"
@@ -518,9 +524,11 @@ with st.expander("Administrator · connectivity & credentials", expanded=False):
 
     with st.expander("Dedicated inbox & sync (optional)", expanded=False):
         st.markdown(
-            "Set **`AGENT_GMAIL_ADDRESS`** and **`CORRESPONDENCE_ARCHIVE_DIR`** in `.env`, then run "
-            "`python -m src.sal.sync_worker` or `python -m src.sal.sync_worker --once`.\n\n"
-            "Optional Supabase: **`SUPABASE_URL`**, **`SUPABASE_SERVICE_ROLE_KEY`**, and **`docs/supabase_schema.sql`**."
+            "Set **`AGENT_GMAIL_ADDRESS`** and **`CORRESPONDENCE_ARCHIVE_DIR`** in `.env`, "
+            "then run `python -m src.sal.sync_worker` or `python -m src.sal.sync_worker --once`."
+            "\n\n"
+            "Optional Supabase: **`SUPABASE_URL`**, **`SUPABASE_SERVICE_ROLE_KEY`**, "
+            "and **`docs/supabase_schema.sql`**."
         )
         st.caption(
             "Shipped today: polling sync only (no Gmail push alerts). Supabase stores thread metadata and "

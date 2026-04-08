@@ -1,12 +1,11 @@
 """Tests for src.sal.evidence — pure/local functions only (no Gmail API)."""
 from __future__ import annotations
 
+import base64
 import json
 import os
 import tempfile
 from unittest.mock import MagicMock
-
-import base64
 
 from src.sal.evidence import (
     claim_to_query_keywords,

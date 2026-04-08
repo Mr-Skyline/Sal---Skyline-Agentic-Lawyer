@@ -13,7 +13,7 @@ test:
 	python3 -m pytest tests/ -v
 
 lint:
-	python3 -m ruff check src/ tests/ main.py || python3 -m py_compile main.py
+	python3 -m ruff check src/ tests/ main.py
 
 smoke:
 	python3 scripts/smoke_check.py

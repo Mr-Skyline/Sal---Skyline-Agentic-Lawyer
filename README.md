@@ -1,5 +1,7 @@
 # Sal — Skyline Agentic Lawyer
 
+[![CI](https://github.com/Mr-Skyline/Sal---Skyline-Agentic-Lawyer/actions/workflows/ci.yml/badge.svg)](https://github.com/Mr-Skyline/Sal---Skyline-Agentic-Lawyer/actions/workflows/ci.yml)
+
 AI-powered legal sidekick for Skyline Painting: Gmail evidence ingestion, Grok-assisted dispute analysis, contract review, professional draft generation, Markdown audit trails, and optional Supabase logging.
 
 **This software does not provide legal advice.** It assists with drafting and organization only.
@@ -56,6 +58,16 @@ AI-powered legal sidekick for Skyline Painting: Gmail evidence ingestion, Grok-a
    ```
    python -m streamlit run main.py
    ```
+
+## Development
+
+The **Makefile** is the primary shortcut for common tasks (after `pip install -r requirements-dev.txt`):
+
+| Command | Purpose |
+| --- | --- |
+| `make test` | Run the full pytest suite (`python3 -m pytest tests/ -v`) |
+| `make lint` | Run Ruff on `src/`, `tests/`, and `main.py` |
+| `make smoke` | Quick import smoke check (`python3 scripts/smoke_check.py`) |
 
 ## Tests
 

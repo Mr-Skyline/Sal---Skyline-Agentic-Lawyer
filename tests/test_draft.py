@@ -8,7 +8,6 @@ from unittest.mock import MagicMock
 
 from src.sal.draft import build_raw_mime, ensure_label_id
 
-
 # ---------- build_raw_mime ----------
 
 class TestBuildRawMime:
@@ -17,7 +16,10 @@ class TestBuildRawMime:
         msg = message_from_string(raw)
         assert msg["Subject"] == "Re: Test"
         payload = msg.get_payload()
-        body_text = payload[0].get_payload(decode=True).decode() if isinstance(payload, list) else msg.get_payload(decode=True).decode()
+        if isinstance(payload, list):
+            body_text = payload[0].get_payload(decode=True).decode()
+        else:
+            body_text = msg.get_payload(decode=True).decode()
         assert "Hello body" in body_text
 
     def test_reply_headers(self):

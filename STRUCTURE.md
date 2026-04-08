@@ -20,7 +20,7 @@
 
 | File | Purpose |
 |---|---|
-| `ci.yml` | GitHub Actions: pytest + import smoke on Python 3.11/3.12 (push to `main` / `cursor/**`, PRs to `main`) |
+| `ci.yml` | GitHub Actions: pytest, Ruff lint (`E,F,W,I`), and import smoke on Python 3.11/3.12 (push to `main` / `cursor/**`, PRs to `main`) |
 
 ## `src/sal/` — Core package
 
