@@ -96,7 +96,7 @@ def export_analysis_markdown(
 {cite_block}
 """
 
-    footer = "\n---\n*Exported from Elite Business Counsel (internal workspace). Not legal advice.*\n"
+    footer = "\n---\n*Exported from Sal · Skyline Lawyer (internal workspace). Not legal advice.*\n"
 
     if path.exists():
         append_block = f"""
