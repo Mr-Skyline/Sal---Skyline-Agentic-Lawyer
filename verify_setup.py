@@ -7,6 +7,10 @@ Check local setup without starting Streamlit.
 """
 from __future__ import annotations
 
+import sitepath
+
+sitepath.ensure()
+
 import argparse
 import os
 import sys
@@ -28,7 +32,7 @@ def run_checks() -> SetupStatus:
     grok_and_credentials_ok: XAI key + credentials.json (can start OAuth).
     gmail_api_ok: above + token.pickle (Gmail API calls will work).
     """
-    from config import (
+    from sal.config import (
         AGENT_GMAIL_ADDRESS,
         CORRESPONDENCE_ARCHIVE_DIR,
         CREDENTIALS_FILE,
@@ -45,10 +49,11 @@ def run_checks() -> SetupStatus:
     lines: List[str] = []
     lines.append(f"Project folder: {ROOT}")
     try:
-        if ROOT.resolve() != INTENDED_PROJECT_ROOT.resolve():
+        intended_env = os.environ.get("INTENDED_PROJECT_ROOT", "").strip()
+        if intended_env and ROOT.resolve() != INTENDED_PROJECT_ROOT.resolve():
             lines.append(
-                f"  WARNING: not canonical root (expected {INTENDED_PROJECT_ROOT}); "
-                "this build is intended only under that folder (Cursor + terminals)."
+                f"  WARNING: not canonical root (expected {INTENDED_PROJECT_ROOT} per INTENDED_PROJECT_ROOT); "
+                "open that folder in Cursor and terminals, or unset INTENDED_PROJECT_ROOT to silence this."
             )
     except OSError:
         lines.append("  NOTE: Could not resolve project path.")

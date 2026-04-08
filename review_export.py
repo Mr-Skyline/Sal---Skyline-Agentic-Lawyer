@@ -3,12 +3,16 @@ Write Streamlit pipeline output to SKYLINE_REVIEW_DIR as Markdown (Sal workflow)
 """
 from __future__ import annotations
 
+import sitepath
+
+sitepath.ensure()
+
 import re
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from config import SKYLINE_REVIEW_DIR, review_state_subdir
+from sal.config import SKYLINE_REVIEW_DIR, review_state_subdir
 from db import insert_review_export_meta
 
 

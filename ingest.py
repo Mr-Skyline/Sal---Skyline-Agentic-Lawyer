@@ -4,13 +4,17 @@ and optionally Supabase. Used by sync_worker.py for continuous monitoring.
 """
 from __future__ import annotations
 
+import sitepath
+
+sitepath.ensure()
+
 import json
 import os
 import tempfile
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-from config import ROOT, SYNC_NEWER_THAN_DAYS
+from sal.config import ROOT, SYNC_NEWER_THAN_DAYS
 from db import upsert_correspondence_thread
 from evidence import fetch_messages_for_evidence
 from gmail_retry import gmail_execute

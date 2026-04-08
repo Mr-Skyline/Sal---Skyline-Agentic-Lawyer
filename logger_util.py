@@ -1,11 +1,15 @@
 """Append-only JSONL log: queries, token usage, errors."""
 from __future__ import annotations
 
+import sitepath
+
+sitepath.ensure()
+
 import json
 from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 
-from config import LOG_FILE
+from sal.config import LOG_FILE
 
 
 def log_event(

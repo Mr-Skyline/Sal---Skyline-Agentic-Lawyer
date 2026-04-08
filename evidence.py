@@ -3,6 +3,10 @@ Gmail search/thread fetch, pasted text parsing, GLM-OCR screenshots, merge.
 """
 from __future__ import annotations
 
+import sitepath
+
+sitepath.ensure()
+
 import base64
 import json
 import os
@@ -22,7 +26,7 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from oauthlib.oauth2.rfc6749.errors import MismatchingStateError
 
-from config import (
+from sal.config import (
     CREDENTIALS_FILE,
     GMAIL_SCOPES,
     OAUTH_LOCAL_PORT,

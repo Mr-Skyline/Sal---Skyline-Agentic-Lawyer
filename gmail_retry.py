@@ -1,13 +1,17 @@
 """Exponential backoff for transient Gmail API errors."""
 from __future__ import annotations
 
+import sitepath
+
+sitepath.ensure()
+
 import random
 import time
 from typing import Any
 
 from googleapiclient.errors import HttpError
 
-from config import GMAIL_RETRY_BASE_SEC, GMAIL_MAX_RETRIES
+from sal.config import GMAIL_RETRY_BASE_SEC, GMAIL_MAX_RETRIES
 
 
 def gmail_execute(request: Any, max_retries: int | None = None) -> Any:

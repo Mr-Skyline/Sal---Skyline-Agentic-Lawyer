@@ -5,13 +5,17 @@ Run: py -m streamlit run main.py
 """
 from __future__ import annotations
 
+import sitepath
+
+sitepath.ensure()
+
 import os
 
 import streamlit as st
 from dotenv import load_dotenv
 
 from analysis import analyze_and_draft
-from config import (
+from sal.config import (
     CREDENTIALS_FILE,
     INTENDED_PROJECT_ROOT,
     JOB_SITE_STATE_CODES,
@@ -454,9 +458,11 @@ if draft_btn:
 # --- Deep admin (collapsed) ---
 with st.expander("Administrator · connectivity & credentials", expanded=False):
     st.caption(f"Project root: `{ROOT}`")
-    if ROOT.resolve() != INTENDED_PROJECT_ROOT.resolve():
+    if os.environ.get("INTENDED_PROJECT_ROOT", "").strip() and (
+        ROOT.resolve() != INTENDED_PROJECT_ROOT.resolve()
+    ):
         st.warning(
-            f"Active build should live only at **`{INTENDED_PROJECT_ROOT}`**. "
+            f"Active build should live only at **`{INTENDED_PROJECT_ROOT}`** (INTENDED_PROJECT_ROOT). "
             "Open that folder in Cursor and run Streamlit there so credentials and token stay in one place."
         )
     st.markdown(

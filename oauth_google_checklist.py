@@ -4,6 +4,10 @@ Run from the project folder: py oauth_google_checklist.py
 """
 from __future__ import annotations
 
+import sitepath
+
+sitepath.ensure()
+
 import json
 import sys
 from pathlib import Path
@@ -11,7 +15,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 
-from config import (  # noqa: E402
+from sal.config import (  # noqa: E402
     CREDENTIALS_FILE,
     OAUTH_LOCAL_PORT,
     OAUTH_LOCAL_PORT_TRY_COUNT,

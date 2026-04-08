@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sal-skyline-lawyer"
+version = "0.1.0"
+description = "Skyline Lawyer — Streamlit workspace for Gmail evidence, Sal (Grok) analysis, and review export."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Proprietary" }
+authors = [{ name = "Skyline" }]
+
+dependencies = [
+    "google-api-python-client>=2.100.0",
+    "google-auth-oauthlib>=1.1.0",
+    "google-auth-httplib2>=0.2.0",
+    "openai>=1.40.0",
+    "streamlit>=1.28.0",
+    "python-dotenv>=1.0.0",
+    "python-docx>=1.1.0",
+]
+
+[project.optional-dependencies]
+ocr = ["glmocr>=0.1.4"]
+supabase = ["supabase>=2.4.0"]
+dev = [
+    "pytest>=8.0",
+]
+full = ["glmocr>=0.1.4", "supabase>=2.4.0"]
+
+[project.scripts]
+skyline-streamlit = "sal.cli:skyline_streamlit"
+skyline-verify-setup = "sal.cli:skyline_verify_setup"
+skyline-smoke = "sal.cli:skyline_smoke"
+skyline-env-check = "sal.cli:skyline_env_check"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = [".", "src"]

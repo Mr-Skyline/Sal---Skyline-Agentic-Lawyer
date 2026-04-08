@@ -6,12 +6,16 @@ Fast import smoke test (no Streamlit run).
 """
 from __future__ import annotations
 
+import sitepath
+
+sitepath.ensure()
+
 import sys
 
 
 def main() -> int:
     mods = [
-        "config",
+        "sal.config",
         "sal_prompt",
         "analysis",
         "evidence",

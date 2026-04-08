@@ -3,6 +3,10 @@ Grok (xAI) analysis + draft generation with exponential backoff retries.
 """
 from __future__ import annotations
 
+import sitepath
+
+sitepath.ensure()
+
 import json
 import os
 import random
@@ -13,7 +17,7 @@ from typing import Any, Dict, Optional
 
 from openai import OpenAI
 
-from config import (
+from sal.config import (
     API_BASE_DELAY_SEC,
     API_MAX_RETRIES,
     GROK_BASE_URL,
@@ -180,3 +184,82 @@ def analyze_and_draft(
                 raise RuntimeError(
                     f"Grok failed after {API_MAX_RETRIES} tries: {last_err}"
                 ) from e
+
+def _parse_sal_response_json(raw: str) -> tuple[Dict[str, Any], str]:
+    """Parse Sal JSON from model output. Returns (data, mode)."""
+    text = (raw or "").strip()
+    if text.startswith("\ufeff"):
+        text = text.lstrip("\ufeff")
+    if text.startswith("```"):
+        text = re.sub(r"^```(?:json)?\s*", "", text, flags=re.IGNORECASE)
+        text = re.sub(r"\s*```\s*$", "", text)
+    mode = "direct"
+    try:
+        parsed: Any = json.loads(text)
+    except json.JSONDecodeError:
+        m = re.search(r"\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}", text, re.DOTALL)
+        if not m:
+            raise
+        mode = "extracted"
+        parsed = json.loads(m.group(0))
+    if isinstance(parsed, list):
+        raise RuntimeError("Expected a JSON object, not an array.")
+    if not isinstance(parsed, dict):
+        raise RuntimeError("Expected a JSON object.")
+    return parsed, mode
+
+
+def _normalize_sal_fields(data: Dict[str, Any]) -> None:
+    """Normalize Sal JSON fields in place."""
+    if data.get("analysis") is None:
+        data["analysis"] = ""
+    if data.get("draft_body") is None:
+        data["draft_body"] = data.get("reply", "") or ""
+    cit = data.get("citations")
+    if isinstance(cit, str):
+        data["citations"] = [cit] if cit else []
+    elif cit is None:
+        data["citations"] = []
+
+
+def friendly_sal_api_message(err: BaseException) -> str:
+    """Map Grok/xAI errors to a short operator-facing string."""
+    from openai import (
+        APIConnectionError,
+        APIStatusError,
+        APITimeoutError,
+        AuthenticationError,
+        InternalServerError,
+        RateLimitError,
+    )
+
+    chain: list[BaseException] = []
+    cur: BaseException | None = err
+    seen: set[int] = set()
+    while cur is not None and id(cur) not in seen:
+        seen.add(id(cur))
+        chain.append(cur)
+        nxt = cur.__cause__
+        cur = nxt if isinstance(nxt, BaseException) else None
+
+    for e in chain:
+        if isinstance(e, APITimeoutError):
+            return "Timeout talking to Grok. Try again with shorter evidence."
+        if isinstance(e, APIConnectionError):
+            return "Connection to Grok failed. Check network and try again."
+        if isinstance(e, AuthenticationError):
+            return "Authentication failed. Check your API key (XAI_API_KEY in .env)."
+        if isinstance(e, RateLimitError):
+            return "Rate limit from Grok. Wait and retry."
+        if isinstance(e, InternalServerError):
+            return "Grok server error. Try again later."
+        if isinstance(e, APIStatusError):
+            sc = getattr(getattr(e, "response", None), "status_code", None)
+            if sc is not None:
+                return f"Grok API error (HTTP {sc})."
+            return "Grok API error."
+        msg = str(e)
+        if "no completion choices" in msg.lower() or "empty response" in msg.lower():
+            return "Grok returned no usable completion. Try again."
+    return f"Grok error: {err!s}"
+

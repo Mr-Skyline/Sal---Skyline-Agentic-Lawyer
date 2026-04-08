@@ -1,3 +1,7 @@
+import sitepath
+
+sitepath.ensure()
+
 """Print redirect URIs for Google Cloud (Web client). Run: py print_redirect_uri.py"""
 import sys
 from pathlib import Path
@@ -5,7 +9,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 
-from config import (  # noqa: E402
+from sal.config import (  # noqa: E402
     OAUTH_LOCAL_PORT,
     OAUTH_LOCAL_PORT_TRY_COUNT,
     OAUTH_LOOPBACK_HOST,

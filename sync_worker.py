@@ -17,6 +17,10 @@ Set SYNC_WORKER_MAX_CONSECUTIVE_ERRORS>0 to exit after that many failures in a r
 """
 from __future__ import annotations
 
+import sitepath
+
+sitepath.ensure()
+
 import argparse
 import os
 import sys
@@ -25,7 +29,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from config import ROOT
+from sal.config import ROOT
 from evidence import get_gmail_service
 from ingest import default_state_path, preview_sync_cc_threads, sync_cc_threads_once
 from logger_util import log_event

@@ -3,12 +3,16 @@ Gmail OAuth **outside Streamlit** (recommended if token.pickle never appears).
 
 Streamlit reruns can interrupt the local OAuth server; this script runs one clean flow.
 
-  cd /d "C:\Users\travi\Projects\AI Lawyer Build"
+  cd /d path\to\this\repo
   py oauth_login.py
 
 Removes existing token.pickle first, then opens the browser (or prints the URL if OAUTH_OPEN_BROWSER=0).
 """
 from __future__ import annotations
+
+import sitepath
+
+sitepath.ensure()
 
 from pathlib import Path
 
@@ -25,7 +29,7 @@ def main() -> None:
         tok.unlink()
         print("Removed old token.pickle")
 
-    from config import CREDENTIALS_FILE, OAUTH_OPEN_BROWSER, TOKEN_FILE
+    from sal.config import CREDENTIALS_FILE, OAUTH_OPEN_BROWSER, TOKEN_FILE
     from evidence import get_gmail_service
 
     if not CREDENTIALS_FILE.exists():

@@ -5,10 +5,14 @@ See DOCUMENT MAP at top of `Skyline Lawyer – Full System Prompt.txt`.
 """
 from __future__ import annotations
 
+import sitepath
+
+sitepath.ensure()
+
 import os
 from pathlib import Path
 
-from config import ROOT
+from sal.config import ROOT
 
 _DEFAULT_FILENAME = "Skyline Lawyer – Full System Prompt.txt"
 _PHASE8_MARKER = "**Phase 8"
