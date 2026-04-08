@@ -150,7 +150,7 @@ def create_gmail_draft(
         if custom:
             subj = custom if custom.lower().startswith("re:") else f"Re: {custom}"
         else:
-            subj = "Draft — Elite Business Counsel"
+            subj = "Draft — Sal · Skyline Lawyer"
 
     raw_str = build_raw_mime(
         draft_body, subj, in_reply_to, references, proof_paths or None

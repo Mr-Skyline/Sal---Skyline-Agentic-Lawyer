@@ -2,7 +2,7 @@
 
 Use this during implementation passes. Update dates and notes as releases ship.
 
-**Last reviewed:** 2026-04-07
+**Last reviewed:** 2026-04-08
 
 ---
 
@@ -47,7 +47,7 @@ Use this so parallel work does not collide.
 | C | Supabase metadata only | Partial (`db.py` thread upsert + `skyline_review_exports` insert audit; graceful skip on API/schema errors; `py -m src.sal.verify_setup --supabase-ping`; `docs/supabase_schema.sql` ops header + RLS note for future client exposure) |
 | D | Embeddings + pattern search | TBD — design only: **`docs/TRACK_D_EMBEDDINGS_DESIGN.md`** (no prod vectors / embedding calls until approved) |
 | E | Worker: proactive / scheduled | Partial (polling `src/sal/sync_worker.py`; `--once` + `scripts/sync_worker_once.cmd` for Task Scheduler; `--dry-run` + `preview_sync_cc_threads` listing; disk archive + state; **not** Gmail Pub/Sub or push-based proactive) |
-| F | UI polish (black/gold, streamlined) | Deferred |
+| F | UI polish (black/gold, streamlined) | Partial (dark theme + gold accents in `.streamlit/config.toml` and CSS injection in `main.py`; Cormorant Garamond + Source Sans 3 typography; further refinement deferred) |
 
 ---
 
