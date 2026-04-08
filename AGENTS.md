@@ -11,7 +11,7 @@
 - **Living doc:** Add durable operational steps to **AGENT_TEAM_CHECKLIST.md** and append a row to **§7 Changelog** when you do.
 - **Handoff:** If you stop mid-task, use the **handoff block** in checklist **§6**.
 - **Sal / Grok persona work:** When the user assigns **Sal** (prompt file, `sal_prompt.py`, Sal-related `analysis.py`) to **another agent**, stay out of that lane unless they explicitly move it here; keep the **checklist** current when team process changes.
-- **Release checklist:** After substantive product changes, align **`SKYLINE_BUILD_REVIEW.md`** (review pass + **Last reviewed**) with what the code actually does.
+- **Release checklist:** After substantive product changes, align **`docs/SKYLINE_BUILD_REVIEW.md`** (review pass + **Last reviewed**) with what the code actually does.
 
 ## Where things live
 

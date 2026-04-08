@@ -41,6 +41,14 @@ from src.sal.logger_util import log_event
 from src.sal.secrets_store import save_api_keys_to_dotenv, save_gmail_credentials_json
 from src.sal.verify_setup import run_checks
 
+def _counterparty_domain_for_log(addr: str) -> str:
+    """Host after @ for logs only — avoid recording full addresses in JSONL."""
+    s = (addr or "").strip().lower()
+    if "@" not in s:
+        return ""
+    host = s.split("@", 1)[1].strip()
+    return host.split("/")[0] if host else ""
+
 load_dotenv(ROOT / ".env", override=True)
 
 # --- Session state (before widgets) ---
@@ -271,10 +279,13 @@ if analyze_submitted:
             with st.spinner("Connecting to Gmail…"):
                 service = get_gmail_service()
             with st.spinner("Retrieving messages…"):
-                q_frag = f"from:{target_email.strip()} OR to:{target_email.strip()}"
                 log_event(
                     "gmail_evidence_start",
-                    extra={"query_fragment": q_frag, "thread_id": thread_id.strip() or None},
+                    extra={
+                        "counterparty_domain": _counterparty_domain_for_log(target_email)
+                        or None,
+                        "thread_id_present": bool(thread_id.strip()),
+                    },
                 )
                 gmail_items, gmail_query = fetch_messages_for_evidence(
                     service,
@@ -420,6 +431,10 @@ if st.session_state.last_grok:
                 "primary_state": grok.get("primary_state") or "",
                 "note": "Empty string → files under SKYLINE_REVIEW_DIR/_unspecified/",
             }
+        )
+        st.warning(
+            "Evidence JSON may include names, emails, and message text — internal workspace "
+            "and screen-share only; redact before external export."
         )
         st.caption("Structured evidence payload (for debugging or export).")
         st.code(

@@ -1,36 +1,36 @@
-Error 400: redirect_uri_mismatch — fix
-========================================
-
-Your OAuth client is type **Web application**. Google only allows redirects you
-list explicitly. Random ports (e.g. localhost:60568) never match.
-
-The app uses a **fixed range** of localhost ports (default base **8765**, not 8090,
-because 8090 is often already in use on Windows). It tries 8765, then 8766, …
-up to OAUTH_LOCAL_PORT_TRY_COUNT (default 5). Override with .env.
-
-Do this in Google Cloud Console
---------------------------------
-1. APIs & Services → Credentials
-2. Open your OAuth 2.0 Client ID (Web application)
-3. Under "Authorized redirect URIs", add **every** URI your app might use.
-   For defaults, add all of:
-
-      http://localhost:8765/   through   http://localhost:8769/
-      http://127.0.0.1:8765/   through   http://127.0.0.1:8769/
-
-   Or run:  py print_redirect_uri.py  (reads .env for port range)
-
-4. Save
-
-5. Delete token.pickle in the project folder (if any)
-
-6. Run:  py oauth_login.py
-
-If .env sets OAUTH_LOCAL_PORT=8090, you must free port 8090 or remove that line
-so the default 8765 range is used.
-
-Alternative (often simpler)
----------------------------
-Create a **new** OAuth client with type **Desktop app** and replace
-credentials.json with the downloaded JSON. Desktop clients work with the
-loopback flow without listing every port in Cloud Console.
+Error 400: redirect_uri_mismatch — fix
+========================================
+
+Your OAuth client is type **Web application**. Google only allows redirects you
+list explicitly. Random ports (e.g. localhost:60568) never match.
+
+The app uses a **fixed range** of localhost ports (default base **8765**, not 8090,
+because 8090 is often already in use on Windows). It tries 8765, then 8766, …
+up to OAUTH_LOCAL_PORT_TRY_COUNT (default 5). Override with .env.
+
+Do this in Google Cloud Console
+--------------------------------
+1. APIs & Services → Credentials
+2. Open your OAuth 2.0 Client ID (Web application)
+3. Under "Authorized redirect URIs", add **every** URI your app might use.
+   For defaults, add all of:
+
+      http://localhost:8765/   through   http://localhost:8769/
+      http://127.0.0.1:8765/   through   http://127.0.0.1:8769/
+
+   Or run:  py scripts/print_redirect_uri.py  (reads .env for port range)
+
+4. Save
+
+5. Delete token.pickle in the project folder (if any)
+
+6. Run:  py scripts/oauth_login.py
+
+If .env sets OAUTH_LOCAL_PORT=8090, you must free port 8090 or remove that line
+so the default 8765 range is used.
+
+Alternative (often simpler)
+---------------------------
+Create a **new** OAuth client with type **Desktop app** and replace
+credentials.json with the downloaded JSON. Desktop clients work with the
+loopback flow without listing every port in Cloud Console.

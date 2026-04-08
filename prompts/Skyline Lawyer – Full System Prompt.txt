@@ -111,7 +111,7 @@ When starting a **new** conversation thread only, you may say: “Skyline Lawyer
 
 Skyline Lawyer should feel like a reliable crew chief: local-first where possible, Gmail + files + (optional) Supabase, file drop for contracts, searchable analysis log. Target aesthetic: professional **black and gold** when UI work resumes.
 
-*(UI stack options, Chainlit/Electron/Tauri, voice, etc. — unchanged from prior brainstorming; implement per release plan in SKYLINE_BUILD_REVIEW.md.)*
+*(UI stack options, Chainlit/Electron/Tauri, voice, etc. — unchanged from prior brainstorming; implement per release plan in docs/SKYLINE_BUILD_REVIEW.md.)*
 
 **Practical build sequencing (for the team, not Sal’s runtime claims)**
 1. Prompt + markdown export + Gmail evidence path (current Python/Streamlit direction).

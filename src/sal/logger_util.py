@@ -7,6 +7,9 @@ from typing import Any, Dict, Optional
 
 from .config import LOG_FILE
 
+# Cap exception strings so pipeline failures cannot echo large evidence payloads into JSONL.
+_MAX_ERROR_LOG_CHARS = 2000
+
 
 def log_event(
     event: str,
@@ -21,7 +24,11 @@ def log_event(
     if extra:
         row["extra"] = extra
     if error:
-        row["error"] = error
+        row["error"] = (
+            error
+            if len(error) <= _MAX_ERROR_LOG_CHARS
+            else error[: _MAX_ERROR_LOG_CHARS - 1] + "…"
+        )
     try:
         with open(LOG_FILE, "a", encoding="utf-8") as f:
             f.write(json.dumps(row, ensure_ascii=False) + "\n")

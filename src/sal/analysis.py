@@ -184,6 +184,7 @@ def friendly_sal_api_message(exc: BaseException) -> Optional[str]:
                     "Grok returned an empty completion. Check XAI_API_KEY, model name, "
                     "and try again."
                 )
+        # APITimeoutError subclasses APIConnectionError in openai-python — check timeout first.
         if isinstance(err, APITimeoutError):
             return (
                 "Timeout: Grok request timed out. Retry with less evidence or a shorter prompt."
@@ -193,7 +194,9 @@ def friendly_sal_api_message(exc: BaseException) -> Optional[str]:
                 "Connection to Grok failed. Check your network, VPN, and firewall, then retry."
             )
         if isinstance(err, AuthenticationError):
-            return "Grok rejected the API key. Verify XAI_API_KEY in your environment."
+            return (
+                "Grok rejected the API key. Verify XAI_API_KEY in your environment."
+            )
         if isinstance(err, RateLimitError):
             return (
                 "Rate limit: Grok is throttling requests. Wait briefly and retry, or reduce volume."

@@ -4,6 +4,12 @@ Elite Business Counsel — operations (dedicated inbox + archive + optional DB)
 Canonical project folder: C:\Users\travi\Projects\AI Lawyer Build
 (Run all commands below from that directory.)
 
+
+0d) REPOSITORY LAYOUT (this Git tree)
+   - docs/ — release checklist (SKYLINE_BUILD_REVIEW.md), this runbook (OPERATIONS_ELITE.txt), and other long-form product notes.
+   - scripts/ — optional Windows/cmd helpers and one-off ops scripts (keep Task Scheduler paths pointed at project root).
+   - src/sal/ — reserved for future packaging of Sal helpers; Sal loading remains sal_prompt.py at repo root for now.
+
 0) CANONICAL WORKSTATION
    - Treat this path as the only source of truth for credentials.json, token.pickle, .env, and SKYLINE_REVIEW_DIR.
    - python3 -m src.sal.verify_setup warns if the current folder is not INTENDED_PROJECT_ROOT (wrong directory or an old copy). Open Cursor and terminals only under C:\Users\travi\Projects\AI Lawyer Build (AGENT_TEAM_CHECKLIST.md).
@@ -28,7 +34,7 @@ Canonical project folder: C:\Users\travi\Projects\AI Lawyer Build
 
 0c) SHIPPED VS ROADMAP (truth for operators — do not over-promise)
    Shipped: Streamlit intake + Gmail evidence + Sal (Grok) + review Markdown under SKYLINE_REVIEW_DIR; optional Supabase metadata only (thread upserts + review-export audit rows); sync_worker polling with --once / --dry-run / Task Scheduler; manual retention (no product auto-delete).
-   Not shipped: Vector embeddings / RAG; Gmail Pub/Sub push; proactive alerts beyond polling; automatic destruction of matter files. Prompt phases 6–8 and SKYLINE_BUILD_REVIEW.md list roadmap until marked done.
+   Not shipped: Vector embeddings / RAG; Gmail Pub/Sub push; proactive alerts beyond polling; automatic destruction of matter files. Prompt phases 6–8 and docs/SKYLINE_BUILD_REVIEW.md list roadmap until marked done.
 
 1) STREAMLIT (interactive drafting)
    - New venv: run scripts/bootstrap_venv.cmd from the canonical folder (prefers Python 3.12 / 3.11).

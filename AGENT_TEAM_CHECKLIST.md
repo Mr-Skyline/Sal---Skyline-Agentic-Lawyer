@@ -15,11 +15,11 @@
 - [ ] **Skim `AGENTS.md`** — one-page entry; this checklist is the detailed playbook.
 - [ ] **Read this checklist** for the current task — including **§2 Lanes** if multiple agents or subagents are active.
 - [ ] **Read project rules:** `.cursor/rules/*.mdc` (especially autonomy + team checklist rule).
-- [ ] **Canonical project root:** active build is only `C:\Users\travi\Projects\AI Lawyer Build` (`INTENDED_PROJECT_ROOT` in `config.py`). Open Cursor and terminals there. If you open a different folder, `py verify_setup.py` warns — use one tree only unless you are explicitly reconciling copies.
+- [ ] **Canonical project root:** active build is only `C:\Users\travi\Projects\AI Lawyer Build` (`INTENDED_PROJECT_ROOT` in `src/sal/config.py`). Open Cursor and terminals there. If you open a different folder, `py -m src.sal.verify_setup` warns — use one tree only unless you are explicitly reconciling copies.
 - [ ] **Secrets:** never commit `.env`, `credentials.json`, or `token.pickle`; never paste API keys or tokens into chat or docs.
 - [ ] **Windows Python:** do not assume `python` works. Prefer `.\.venv\Scripts\python.exe`, or `py -3.12` / `py -3.11`, then `py -3`. Use `bootstrap_venv.cmd` to create `.venv` if missing.
 - [ ] **Scope:** only change what the task requires; match existing style and patterns in touched files.
-- [ ] **Release / review doc:** When you change **model claims vs code**, **PII/export posture**, or **phase track status**, skim **`SKYLINE_BUILD_REVIEW.md`** (“Each review pass” + phase table). Bump **`Last reviewed`** when you complete that review pass for the same session of work.
+- [ ] **Release / review doc:** When you change **model claims vs code**, **PII/export posture**, or **phase track status**, skim **`docs/SKYLINE_BUILD_REVIEW.md`** (“Each review pass” + phase table). Bump **`Last reviewed`** when you complete that review pass for the same session of work.
 
 ## 2. Lanes, subagents, and avoiding overlap
 
@@ -32,11 +32,11 @@
 - [ ] **PR / CI / merge babysitting:** Treat **PR merge-readiness** (comments, conflicts, CI loops) as its own lane. Use the user’s **babysit** skill when that is the ask; do not mix large unrelated refactors into that pass unless the user asked for both.
 - [ ] **No parallel duplicate tasks:** If the user launched two agents on the same ticket, **diff against reality**: check git status / open files / last message for what is already done before you implement.
 - [ ] **Sal lane (when delegated elsewhere):** If the user says **another agent owns the Sal project** (prompt text, `sal_prompt.py`, Sal/Grok wiring), **do not** re-implement or “fix” that slice here unless they explicitly route the task to you. **Do** keep **§7 Changelog** and related bullets accurate when their work changes how the team should run.
-- [ ] **Roadmap & hygiene (Agent 3):** `SKYLINE_BUILD_REVIEW.md`, `TRACK_D_*.md`, `OPERATIONS_ELITE.txt`, checklist changelog, `.env.example` / `SECRETS_TEMPLATE`, bootstrap/requirements notes — **not** feature logic in `main.py` / `analysis.py` / `sync_worker.py` / `ingest.py` except **factual** operator copy or broken doc references.
+- [ ] **Roadmap & hygiene (Agent 3):** `docs/SKYLINE_BUILD_REVIEW.md`, `TRACK_D_*.md`, `docs/OPERATIONS_ELITE.txt`, checklist changelog, `.env.example` / `SECRETS_TEMPLATE`, bootstrap/requirements notes — **not** feature logic in `main.py` / `analysis.py` / `sync_worker.py` / `ingest.py` except **factual** operator copy or broken doc references.
 
 ## 3. Environment & diagnostics
 
-- [ ] **Single workspace:** Open Cursor and terminals **only** under the project root (`INTENDED_PROJECT_ROOT` in `src/sal/config.py`). If you ever opened a different folder by mistake, **`scripts/mirror_agent_docs.cmd`** can copy agent docs; prefer fixing the workspace path instead of two trees.
+- [ ] **Single workspace:** Open Cursor and terminals **only** under the project root (`C:\Users\travi\Projects\AI Lawyer Build`; `INTENDED_PROJECT_ROOT` in `src/sal/config.py`). If you ever opened a different folder by mistake, **`scripts/mirror_agent_docs.cmd`** can copy `AGENTS.md`, `AGENT_TEAM_CHECKLIST.md`, and `.cursor/rules/*.mdc` — it does **not** copy app code or `docs/SKYLINE_BUILD_REVIEW.md` / `docs/OPERATIONS_ELITE.txt`; prefer fixing the workspace path instead of two trees.
 - [ ] To verify Grok env loading without exposing the key: run `scripts/env_check.py` via `.venv\Scripts\python.exe` or `scripts/EnvCheck.ps1` / `scripts/env_check.cmd` from project root.
 - [ ] Core deps: `requirements.txt`; OCR / Supabase: optional requirement files as documented in `scripts/bootstrap_venv.cmd` output.
 - [ ] Optional env vars: see `.env.example` (`XAI_API_KEY`, `GROK_MODEL`, `GROK_MAX_OUTPUT_TOKENS`, `SAL_PROMPT_PATH`, Gmail/OAuth, Supabase, etc.).
@@ -78,17 +78,17 @@
 | 2026-04-06 | Lanes / overlap    | Added §2 subagent lanes, single-writer, babysit lane, handoff block in §6. |
 | 2026-04-06 | Docs + health      | Expanded `AGENTS.md`; checklist cross-link + checkboxes + `verify_setup.py` bullet; review pass. |
 | 2026-04-06 | Dual root          | Same `AGENTS.md`, checklist, and `.cursor/rules` must exist under **`C:\Users\travi\Projects\AI Lawyer Build`** when sidekicks use that workspace (not only OneDrive). |
-| 2026-04-07 | Sidekick pass      | §1 canonical root clarified (Projects only, duplicate = verify warning); §6 doc-conflict rule; `AGENTS.md` links `SKYLINE_BUILD_REVIEW.md` + plain **bold** doc names. |
+| 2026-04-07 | Sidekick pass      | §1 canonical root clarified (Projects only, duplicate = verify warning); §6 doc-conflict rule; `AGENTS.md` links `docs/SKYLINE_BUILD_REVIEW.md` + plain **bold** doc names. |
 | 2026-04-07 | Stack sync         | Added `mirror_agent_docs.cmd` (push to Projects / `backup` pull) + §3 bullet. |
 | 2026-04-07 | Sal + env check    | Added `sal_prompt.py`, wired `analysis.py` to Sal file + JSON contract; `env_check.py` / `.cmd` / `EnvCheck.ps1`; `.env.example` `GROK_MAX_OUTPUT_TOKENS` / `SAL_PROMPT_PATH`. |
 | 2026-04-08 | Sal lane split       | User: other agents own Sal implementation; §2 + §4 ownership notes; `AGENTS.md` Sal lane bullet; this agent keeps checklist current. |
-| 2026-04-09 | Checklist + release  | §1 `SKYLINE_BUILD_REVIEW.md` / Last reviewed; §4 non-Sal reference row; `SKYLINE_BUILD_REVIEW` Notes multi-agent pointer; `agent-team-checklist.mdc` Sal deferral. |
+| 2026-04-09 | Checklist + release  | §1 `docs/SKYLINE_BUILD_REVIEW.md` / Last reviewed; §4 non-Sal reference row; `SKYLINE_BUILD_REVIEW` Notes multi-agent pointer; `agent-team-checklist.mdc` Sal deferral. |
 | 2026-04-09 | YOLO hygiene        | `verify_setup.py` ASCII Python note; added `smoke_check.py`; §5 smoke bullet. |
 | 2026-04-10 | Agent 1 data plane  | `verify_setup --supabase-ping`; `db.py` upsert try/except; `sync_worker_once.cmd`; `OPERATIONS` disk vs DB; schema ops header; Track C/E in `SKYLINE_BUILD_REVIEW`. |
-| 2026-04-11 | Phase 1 ops         | `OPERATIONS_ELITE.txt`: Task Scheduler recipe (cmd.exe + `sync_worker_once.cmd`), logs/troubleshooting, Supabase ping failure order. |
-| 2026-04-09 | YOLO pass 2         | `env_check.py` ASCII-safe Sal path line; `sync_worker.py --dry-run`; `OPERATIONS_ELITE.txt` health + dry-run lines. |
-| 2026-04-11 | Agent 3 roadmap     | `SKYLINE_BUILD_REVIEW.md`: phase A–E aligned to code, Last reviewed, Track D pointer; `TRACK_D_EMBEDDINGS_DESIGN.md`; statute/retention product vs counsel + handoff table for Agents 1–2. |
-| 2026-04-11 | Agent 3 runbook     | `OPERATIONS_ELITE.txt`: first-run order, troubleshooting index, shipped vs roadmap; canonical `SKYLINE` note; `AGENTS.md` ops row; `main.py` caption under dedicated inbox (truth vs roadmap). |
+| 2026-04-11 | Phase 1 ops         | `docs/OPERATIONS_ELITE.txt`: Task Scheduler recipe (cmd.exe + `sync_worker_once.cmd`), logs/troubleshooting, Supabase ping failure order. |
+| 2026-04-09 | YOLO pass 2         | `env_check.py` ASCII-safe Sal path line; `sync_worker.py --dry-run`; `docs/OPERATIONS_ELITE.txt` health + dry-run lines. |
+| 2026-04-11 | Agent 3 roadmap     | `docs/SKYLINE_BUILD_REVIEW.md`: phase A–E aligned to code, Last reviewed, Track D pointer; `TRACK_D_EMBEDDINGS_DESIGN.md`; statute/retention product vs counsel + handoff table for Agents 1–2. |
+| 2026-04-11 | Agent 3 runbook     | `docs/OPERATIONS_ELITE.txt`: first-run order, troubleshooting index, shipped vs roadmap; canonical `SKYLINE` note; `AGENTS.md` ops row; `main.py` caption under dedicated inbox (truth vs roadmap). |
 | 2026-04-12 | Agent 3 playbook    | §2 Agent 3 lane; §3 `mirror_agent_docs` exclusions; §4 Sal stack wording (`load_sal_behavioral_text` + `sal_prompt` JSON/mode suffixes + `analysis.py` compose); `mirror_agent_docs.cmd` REM for non-mirrored files. |
 | 2026-04-12 | Single project root   | User: **only** `C:\Users\travi\Projects\AI Lawyer Build`. README + `SKYLINE_BUILD_REVIEW` + `SECRETS_TEMPLATE` + `run.cmd` + `config` comment; §3 checklist = one workspace, mirror script recovery-only; deleted stray `Windows PowerShell*.txt` from repo root. |
 | 2026-04-07 | Master Builder restructure | Full repo reorganization: `src/sal/` Python package, `docs/`, `scripts/`, `prompts/`, `config/`. Implemented `_parse_sal_response_json`, `_normalize_sal_fields`, `friendly_sal_api_message`. All 14 tests pass. Updated §3–§5 paths. |
@@ -99,3 +99,7 @@
 | 2026-04-07 | CI workflow           | Added `.github/workflows/ci.yml`: Ubuntu, Python 3.11/3.12, `pip install -r requirements-dev.txt`, `pytest tests/`. `APITimeoutError` is a subclass of `APIConnectionError` in openai — check timeout before connection in `friendly_sal_api_message`. |
 | 2026-04-08 | PR #2 merge main      | Resolved conflicts: CI combines `cursor/**` push triggers + pip cache + verbose pytest + import smoke; `src/sal/analysis.py` keeps brace JSON extract, merges `friendly_sal_api_message` chain + timeout-before-connection + single-quote string literals in `_extract_json_object`; `_normalize_sal_fields` handles missing `analysis` key. |
 | 2026-04-08 | dotenv override       | `sync_worker.py` + `verify_setup.py`: `load_dotenv(..., override=False)` so subprocess/tests/Task Scheduler env is not clobbered by `.env`; `test_run_checks_no_xai_key` mocks `load_dotenv` when asserting missing `XAI_API_KEY`. |
+| 2026-04-07 | Quality Inspector   | `docs/SKYLINE_BUILD_REVIEW.md` + `docs/OPERATIONS_ELITE.txt`; `tests/test_review_config_sal.py`; `src/sal/logger_util` caps `error` JSONL field; merge with `main` package layout. |
+| 2026-04-07 | Quality Inspector follow-up | `main.py`: `gmail_evidence_start` logs domain + thread_id flag only; Technical tab PII warning before evidence JSON. |
+| 2026-04-07 | Merge `main` into audit branch | Rebased Quality Inspector work on post-#2 `main`: resolved doc conflicts; `src/sal/analysis.py` keeps brace JSON + `friendly_sal_api_message` with timeout-before-connection; `tests/test_review_config_sal.py` imports `src.sal.*`; 126 pytest tests pass. |
+| 2026-04-07 | Docs path consistency | `docs/REDIRECT_URI_FIX.txt` LF + `scripts/` paths; `oauth_redirect_uri.txt`, `OAUTH_FALLBACK_STEPS.txt`, `SECRETS_TEMPLATE.txt`, `supabase_schema.sql` header, `TRACK_D_EMBEDDINGS_DESIGN.md` refs aligned to `py -m src.sal.verify_setup` / `docs/supabase_schema.sql`. |
