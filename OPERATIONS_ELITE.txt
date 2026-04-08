@@ -1,16 +1,15 @@
 Elite Business Counsel — operations (dedicated inbox + archive + optional DB)
 ================================================================================
 
-Canonical project folder: C:\Users\travi\Projects\AI Lawyer Build
-(Run all commands below from that directory.)
+Canonical project folder: the root of this Git checkout (run all commands below from that directory).
 
 0) CANONICAL WORKSTATION
    - Treat this path as the only source of truth for credentials.json, token.pickle, .env, and SKYLINE_REVIEW_DIR.
-   - py verify_setup.py warns if the current folder is not INTENDED_PROJECT_ROOT (wrong directory or an old copy). Open Cursor and terminals only under C:\Users\travi\Projects\AI Lawyer Build (AGENT_TEAM_CHECKLIST.md).
+   - If you set INTENDED_PROJECT_ROOT in .env, py verify_setup.py warns when the current folder does not match (wrong directory or an old copy). Open Cursor and terminals on a single clone (AGENT_TEAM_CHECKLIST.md).
 
 0a) FIRST RUN (typical order — Streamlit + Grok + Gmail)
-   1. cd to the canonical folder above
-   2. bootstrap_venv.cmd  (or py -3.12 -m venv .venv && .venv\Scripts\pip install -r requirements.txt)
+   1. cd to the repo root
+   2. scripts\bootstrap_venv.cmd (or bootstrap_venv.cmd at repo root)  (or py -3.12 -m venv .venv && .venv\Scripts\pip install -r requirements.txt)
    3. .env from SECRETS_TEMPLATE.txt: at least XAI_API_KEY; place Gmail Desktop OAuth JSON as credentials.json
    4. py oauth_login.py  (browser; writes token.pickle here)
    5. py verify_setup.py --strict   (exit 1 = fix stderr: key, credentials, or token)
@@ -19,7 +18,7 @@ Canonical project folder: C:\Users\travi\Projects\AI Lawyer Build
    Optional: AGENT_GMAIL_ADDRESS + CORRESPONDENCE_ARCHIVE_DIR → py sync_worker.py --dry-run then --once
 
 0b) QUICK FAILURE INDEX
-   A) "not canonical root" in verify_setup → duplicate clone; open the Projects path or reconcile copies.
+   A) "not canonical root" in verify_setup → duplicate clone or INTENDED_PROJECT_ROOT mismatch; open the intended folder or fix .env.
    B) verify_setup --strict exits 1 → missing XAI_API_KEY, credentials.json, and/or token.pickle; run py oauth_login.py from this folder.
    C) Gmail errors after token worked → re-run oauth_login.py; dispute_agent_log.jsonl for GmailEvidenceError / pipeline_error.
    D) verify_setup.py --supabase-ping exits 2 → install requirements-supabase.txt; set SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY; run supabase_schema.sql (both tables).
@@ -31,10 +30,10 @@ Canonical project folder: C:\Users\travi\Projects\AI Lawyer Build
    Not shipped: Vector embeddings / RAG; Gmail Pub/Sub push; proactive alerts beyond polling; automatic destruction of matter files. Prompt phases 6–8 and SKYLINE_BUILD_REVIEW.md list roadmap until marked done.
 
 1) STREAMLIT (interactive drafting)
-   - New venv: run bootstrap_venv.cmd from the canonical folder (prefers Python 3.12 / 3.11).
+   - New venv: run scripts\bootstrap_venv.cmd from the repo root (prefers Python 3.12 / 3.11).
    - pip install -r requirements.txt (core); optional extras: requirements-ocr.txt, requirements-supabase.txt, or requirements-full.txt
    - Quick health: py smoke_check.py ; py env_check.py ; py verify_setup.py
-   - streamlit run main.py   OR run.cmd   OR your desktop launcher
+   - streamlit run main.py   OR scripts\run.cmd (or run.cmd at repo root)   OR your desktop launcher
    - Choose "Elite business counsel" vs "Dispute" profile before Analyze.
    - UI states clearly: output is NOT legal advice.
 
@@ -58,7 +57,7 @@ Canonical project folder: C:\Users\travi\Projects\AI Lawyer Build
        Optional loop tuning: SYNC_WORKER_BACKOFF_CAP_SEC, SYNC_WORKER_MAX_CONSECUTIVE_ERRORS (see .env.example)
    - Optional local archive bootstrap: py ensure_correspondence_archive.py
    - Preview what would sync (Gmail API; no disk/DB writes; archive dir not required): py sync_worker.py --dry-run
-   - Test one cycle: py sync_worker.py --once   OR   sync_worker_once.cmd   (exit 1 if that cycle errors — Task Scheduler)
+   - Test one cycle: py sync_worker.py --once   OR   scripts\sync_worker_once.cmd (or root stub)   (exit 1 if that cycle errors — Task Scheduler)
    - Always on: py sync_worker.py   (backoff between errors; optional max consecutive failures then exit)
 
    WINDOWS TASK SCHEDULER (polling every N minutes)
@@ -67,12 +66,12 @@ Canonical project folder: C:\Users\travi\Projects\AI Lawyer Build
    - Triggers: Daily / repeat task every 5–15 minutes (or your policy), duration “Indefinitely”.
    - Actions → Start a program:
        Program/script:  C:\Windows\System32\cmd.exe
-       Add arguments:     /d /s /c "C:\Users\travi\Projects\AI Lawyer Build\sync_worker_once.cmd"
-       Start in:          C:\Users\travi\Projects\AI Lawyer Build
+       Add arguments:     /d /s /c "D:\path\to\repo\scripts\sync_worker_once.cmd"
+       Start in:          D:\path\to\repo
      (Adjust the path if your canonical folder differs; keep “Start in” = project root so .env resolves.)
    - Conditions: uncheck “Start only if on AC power” if this is a laptop you care about on battery.
    - History: enable “Task History” in Task Scheduler to see exit codes; exit 0 = normal from the .cmd.
-   - sync_worker_once.cmd is non-interactive (no pause). For a long loop instead of scheduled --once,
+   - scripts\sync_worker_once.cmd is non-interactive (no pause). For a long loop instead of scheduled --once,
      use py sync_worker.py as a logged-in session or a service wrapper you maintain separately.
 
    LOGS & TROUBLESHOOTING (data plane)

@@ -15,7 +15,7 @@
 - [ ] **Skim `AGENTS.md`** — one-page entry; this checklist is the detailed playbook.
 - [ ] **Read this checklist** for the current task — including **§2 Lanes** if multiple agents or subagents are active.
 - [ ] **Read project rules:** `.cursor/rules/*.mdc` (especially autonomy + team checklist rule).
-- [ ] **Canonical project root:** active build is only `C:\Users\travi\Projects\AI Lawyer Build` (`INTENDED_PROJECT_ROOT` in `config.py`). Open Cursor and terminals there. If you open a different folder, `py verify_setup.py` warns — use one tree only unless you are explicitly reconciling copies.
+- [ ] **Canonical project root:** use **one** checkout of this repo. Optional `INTENDED_PROJECT_ROOT` in `.env` pins the path `verify_setup.py` checks against (see `src/sal/config.py`). Open Cursor and terminals on that tree only — use one tree unless you are explicitly reconciling copies.
 - [ ] **Secrets:** never commit `.env`, `credentials.json`, or `token.pickle`; never paste API keys or tokens into chat or docs.
 - [ ] **Windows Python:** do not assume `python` works. Prefer `.\.venv\Scripts\python.exe`, or `py -3.12` / `py -3.11`, then `py -3`. Use `bootstrap_venv.cmd` to create `.venv` if missing.
 - [ ] **Scope:** only change what the task requires; match existing style and patterns in touched files.
@@ -36,9 +36,9 @@
 
 ## 3. Environment & diagnostics
 
-- [ ] **Single workspace:** Open Cursor and terminals **only** under `C:\Users\travi\Projects\AI Lawyer Build` (`INTENDED_PROJECT_ROOT`). If you ever opened a different folder by mistake, **`mirror_agent_docs.cmd`** can copy `AGENTS.md`, `AGENT_TEAM_CHECKLIST.md`, and `.cursor/rules/*.mdc` into that path (or `backup` from it) — it does **not** copy app code or `SKYLINE_BUILD_REVIEW.md` / `OPERATIONS_ELITE.txt`; prefer fixing the workspace path instead of two trees.
-- [ ] To verify Grok env loading without exposing the key: run `env_check.py` via `.venv\Scripts\python.exe` or `EnvCheck.ps1` / `env_check.cmd` from project root (see repo root files).
-- [ ] Core deps: `requirements.txt`; OCR / Supabase: optional requirement files as documented in `bootstrap_venv.cmd` output.
+- [ ] **Single workspace:** Open Cursor and terminals on **one** repo root. If you ever opened a different folder by mistake, **`scripts/mirror_agent_docs.cmd`** (or root stub) can copy `AGENTS.md`, `AGENT_TEAM_CHECKLIST.md`, and `.cursor/rules/*.mdc` into a second tree when **`SKYLINE_MIRROR_STACK`** is set — it does **not** copy app code or `SKYLINE_BUILD_REVIEW.md` / `OPERATIONS_ELITE.txt`; prefer fixing the workspace path instead of two trees.
+- [ ] To verify Grok env loading without exposing the key: run `env_check.py` via `.venv\Scripts\python.exe` or `scripts/EnvCheck.ps1` / `env_check.cmd` from project root.
+- [ ] Core deps: `requirements.txt` or `pip install -e .` (`pyproject.toml`); OCR / Supabase: optional groups or `requirements-ocr.txt` / `requirements-supabase.txt` as in `scripts/bootstrap_venv.cmd` output.
 - [ ] Optional env vars: see `.env.example` (`XAI_API_KEY`, `GROK_MODEL`, `GROK_MAX_OUTPUT_TOKENS`, `SAL_PROMPT_PATH`, Gmail/OAuth, Supabase, etc.).
 
 ## 4. Application behavior (Skyline / Sal)
@@ -46,8 +46,8 @@
 - [ ] **Owner:** Sal prompt + Grok integration may be maintained by **another agent** when the user says so; confirm in-thread before editing `Skyline Lawyer – Full System Prompt.txt`, `sal_prompt.py`, or Sal-related paths in `analysis.py`.
 - [ ] Grok analysis uses **Sal** from `Skyline Lawyer – Full System Prompt.txt` (through Phase 7; Phase 8 stripped) via `sal_prompt.load_sal_behavioral_text`, plus `json_tool_contract_suffix` and `run_mode_suffix` in `sal_prompt.py`; **`analysis.py` composes** the system message and calls Grok. Override path with **`SAL_PROMPT_PATH`**. If the file is missing or empty, **`analysis.py` falls back** to inline `SYSTEM_PROMPT_DISPUTE` / `SYSTEM_PROMPT_BUSINESS`.
 - [ ] `assistant_profile`: `dispute` vs `business_counsel` only adjusts a short run-mode add-on; same Sal core.
-- [ ] `state_hint` / `primary_state` and review paths: `config.py`, `review_export.py`, `main.py`.
-- [ ] **Non-Sal surfaces (reference):** Streamlit entry **`main.py`** / **`run.cmd`**; Gmail evidence **`evidence.py`** + **`draft.py`**; optional **`sync_worker.py`** + **`ingest.py`**; setup **`verify_setup.py`**. Phase intent vs status: **`SKYLINE_BUILD_REVIEW.md`** (not duplicated here).
+- [ ] `state_hint` / `primary_state` and review paths: `src/sal/config.py`, `review_export.py`, `main.py`.
+- [ ] **Non-Sal surfaces (reference):** Streamlit entry **`main.py`** / **`scripts/run.cmd`**; Gmail evidence **`evidence.py`** + **`draft.py`**; optional **`sync_worker.py`** + **`ingest.py`**; setup **`verify_setup.py`**. Phase intent vs status: **`SKYLINE_BUILD_REVIEW.md`** (not duplicated here).
 
 ## 5. While implementing
 
@@ -89,3 +89,4 @@
 | 2026-04-11 | Agent 3 runbook     | `OPERATIONS_ELITE.txt`: first-run order, troubleshooting index, shipped vs roadmap; canonical `SKYLINE` note; `AGENTS.md` ops row; `main.py` caption under dedicated inbox (truth vs roadmap). |
 | 2026-04-12 | Agent 3 playbook    | §2 Agent 3 lane; §3 `mirror_agent_docs` exclusions; §4 Sal stack wording (`load_sal_behavioral_text` + `sal_prompt` JSON/mode suffixes + `analysis.py` compose); `mirror_agent_docs.cmd` REM for non-mirrored files. |
 | 2026-04-12 | Single project root   | User: **only** `C:\Users\travi\Projects\AI Lawyer Build`. README + `SKYLINE_BUILD_REVIEW` + `SECRETS_TEMPLATE` + `run.cmd` + `config` comment; §3 checklist = one workspace, mirror script recovery-only; deleted stray `Windows PowerShell*.txt` from repo root. |
+| 2026-04-07 | Package infra | `pyproject.toml`, `src/sal/config.py`, `INTENDED_PROJECT_ROOT` env; scripts under `scripts/`; `.gitattributes`; path docs. |

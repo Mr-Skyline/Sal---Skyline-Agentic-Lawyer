@@ -9,4 +9,4 @@ alwaysApply: true
 - Edit, create, and delete files in this workspace as required by the task; do not pause for confirmation on routine changes.
 - Prefer executing fixes yourself over telling the user to run commands manually.
 - Secrets stay local: never commit `.env`, `credentials.json`, or `token.pickle`; never echo secret values in chat.
-- Canonical project root for this build: `C:\Users\travi\Projects\AI Lawyer Build` (not OneDrive duplicates unless reconciling).
+- Canonical project root: a **single** checkout of this repo (not OneDrive duplicates unless reconciling). Optional `INTENDED_PROJECT_ROOT` in `.env` for strict path checks.

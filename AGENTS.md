@@ -23,7 +23,7 @@
 | Ops runbook (first run + troubleshooting) | `OPERATIONS_ELITE.txt`     |
 | Cursor enforcement         | `.cursor/rules/agent-team-checklist.mdc`  |
 | Execution / secrets policy | `.cursor/rules/agent-autonomy.mdc`        |
-| Agent docs ↔ canonical stack | `mirror_agent_docs.cmd` (see checklist **§3**) |
+| Agent docs ↔ second tree | `scripts/mirror_agent_docs.cmd` + `SKYLINE_MIRROR_STACK` (see checklist **§3**) |
 | PR merge-ready loop        | User **babysit** skill (see checklist §2) |
 
 

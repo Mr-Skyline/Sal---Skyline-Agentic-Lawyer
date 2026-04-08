@@ -32,7 +32,7 @@ PART A — Google Cloud Console (first-time or new machine)
    - Application type: Desktop app.
    - Name it (e.g. "Elite Counsel Desktop") → Create.
    - Download JSON → save as credentials.json in your project folder:
-       C:\Users\travi\Projects\AI Lawyer Build\credentials.json
+       D:\path\to\repo\credentials.json
      (Replace the file; do not commit to git — it is in .gitignore.)
 
 6) Confirm .env has nothing conflicting; XAI keys are separate from Google.
