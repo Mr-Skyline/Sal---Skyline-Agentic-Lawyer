@@ -11,9 +11,9 @@
 | `AGENT_TEAM_CHECKLIST.md` | Living playbook for multi-agent workflow |
 | `.env.example` | Template for local secrets (copy to `.env`) |
 | `requirements*.txt` | Dependency manifests (core, dev, OCR, Supabase, full) |
-| `pyproject.toml` | PEP 621 project metadata, dependencies, entry points, tool config |
+| `pyproject.toml` | PEP 621 project metadata, dependencies, entry points, tool config (includes `[tool.pytest.ini_options]`) |
 | `.gitignore` | Secrets, venv, caches, local archives |
-| `pytest.ini` | Test runner config |
+| `.python-version` | Preferred Python version (pyenv) |
 
 ## `src/sal/` — Core package
 
@@ -21,6 +21,7 @@ All application logic lives here as a proper Python package with relative import
 
 | Module | Responsibility |
 |---|---|
+| `__main__.py` | Package entry: `python -m src.sal` runs the sync worker (`sync_worker.main`) |
 | `config.py` | Paths, env vars, API endpoints, state codes, constants |
 | `analysis.py` | Grok chat completion, JSON response parsing, error formatting |
 | `sal_prompt.py` | Load Sal behavioral text from prompt file, JSON contract suffix |
@@ -73,15 +74,6 @@ All application logic lives here as a proper Python package with relative import
 | `mirror_agent_docs.cmd` | Doc sync utility |
 | `PUSH_NOW.ps1` | Git push helper |
 | `init_for_github.ps1` | Initial GitHub setup |
-
-## `config/`
-
-| File | Purpose |
-|---|---|
-| `.env.example` | Canonical env template (also symlinked at root) |
-| `.streamlit/config.toml` | Streamlit dark theme (black/gold) |
-| `pytest.ini` | Canonical pytest config |
-| `.python-version` | Preferred Python version |
 
 ## `tests/`
 
