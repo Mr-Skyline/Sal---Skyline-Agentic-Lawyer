@@ -20,4 +20,4 @@ Then register matching http://localhost:PORT/ lines for each port in the range.
 Where: Google Cloud → APIs & Services → Credentials → your OAuth Web client
 → Authorized redirect URIs (NOT JavaScript origins) → Save
 
-Run: py print_redirect_uri.py  (prints the list from your current .env)
+Run: py scripts/print_redirect_uri.py  (prints the list from your current .env)

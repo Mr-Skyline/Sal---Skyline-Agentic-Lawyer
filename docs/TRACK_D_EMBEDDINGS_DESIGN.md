@@ -67,5 +67,5 @@ Final chunk sizes depend on the chosen embedding model’s context limit and cos
 ## References
 
 - Phase table: `docs/SKYLINE_BUILD_REVIEW.md`
-- Metadata schema: `supabase_schema.sql`
-- Ops: `docs/OPERATIONS_ELITE.txt`, `verify_setup.py --supabase-ping`
+- Metadata schema: `docs/supabase_schema.sql`
+- Ops: `docs/OPERATIONS_ELITE.txt`, `py -m src.sal.verify_setup --supabase-ping`

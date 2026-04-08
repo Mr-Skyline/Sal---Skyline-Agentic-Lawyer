@@ -4,7 +4,7 @@
 --   1) Supabase Dashboard → SQL → New query → paste this file → Run.
 --   2) Use service role key only in server-side .env (sync_worker / worker); never in browsers.
 --   3) pip install -r requirements-supabase.txt in the project venv.
---   4) py verify_setup.py --supabase-ping  (must print "supabase-ping: ok" when URL+key set).
+--   4) py -m src.sal.verify_setup --supabase-ping  (must print "supabase-ping: ok" when URL+key set).
 --
 -- RLS: not defined here. For server-only service role, table access bypasses RLS by default.
 --    If you expose Supabase to clients later, enable RLS and add policies.
