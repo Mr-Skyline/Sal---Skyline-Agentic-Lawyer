@@ -1,58 +1,87 @@
-# Sal · Skyline Lawyer
+# Sal — Skyline Agentic Lawyer
 
-Streamlit workspace for Skyline Painting: Gmail evidence, **Sal** (Grok) analysis and drafting, Markdown review export, optional Gmail draft creation.
+AI-powered legal sidekick for Skyline Painting: Gmail evidence ingestion, Grok-assisted dispute analysis, contract review, professional draft generation, Markdown audit trails, and optional Supabase logging.
 
-This software **does not provide legal advice**. It assists with drafting and organization only.
+**This software does not provide legal advice.** It assists with drafting and organization only.
 
-## Where this project lives
+---
 
-Intended active root (also `INTENDED_PROJECT_ROOT` in `config.py`):
+## Project structure
 
-`C:\Users\travi\Projects\AI Lawyer Build`
-
-**Use this folder only.** Open Cursor with **File → Open Folder** pointed here, run every terminal and script from here, and do **not** keep a second working copy elsewhere (duplicate trees break OAuth paths, `.env`, and Git).
-
-Run `py verify_setup.py` from this folder.
+```
+.
+├── main.py                  # Streamlit entry point
+├── src/sal/                 # Core Python package
+│   ├── analysis.py          # Grok (xAI) analysis + draft generation
+│   ├── config.py            # Paths, API endpoints, constants
+│   ├── sal_prompt.py        # Sal behavioral prompt loader
+│   ├── evidence.py          # Gmail search, OCR, document parsing
+│   ├── draft.py             # Gmail draft creation with MIME + labels
+│   ├── review_export.py     # Markdown audit trail export
+│   ├── db.py                # Optional Supabase persistence
+│   ├── ingest.py            # Thread ingestion for sync worker
+│   ├── sync_worker.py       # Continuous Gmail polling worker
+│   ├── gmail_retry.py       # Exponential backoff for Gmail API
+│   ├── logger_util.py       # JSONL append-only logging
+│   ├── secrets_store.py     # Write API keys to .env
+│   └── verify_setup.py      # Local setup checker
+├── prompts/                 # Sal system prompt file
+├── docs/                    # Build review, operations, OAuth guides, schema
+├── scripts/                 # CLI tools, batch files, setup helpers
+├── config/                  # .env.example, .streamlit theme, pytest config
+├── tests/                   # Unit tests (pytest)
+├── requirements.txt         # Core dependencies
+├── requirements-dev.txt     # Dev/CI (pytest)
+├── requirements-ocr.txt     # Optional OCR (GLM-OCR)
+├── requirements-supabase.txt# Optional Supabase
+└── requirements-full.txt    # All of the above
+```
 
 ## Quick setup
 
-1. **Python:** 3.11–3.12 recommended; create `.venv` and `pip install -r requirements.txt` (optional: `requirements-ocr.txt`, `requirements-supabase.txt`).
-2. **Secrets:** copy `.env.example` → `.env`; set at least `XAI_API_KEY`.
-3. **Gmail:** add Google OAuth **Desktop** client JSON as `credentials.json`, then `py oauth_login.py`.
-4. **Run:** `py -m streamlit run main.py`
+1. **Python 3.11–3.12** recommended. Create a virtual environment:
+   ```
+   python -m venv .venv
+   pip install -r requirements.txt
+   ```
 
-More detail: **`OPERATIONS_ELITE.txt`**, build checklist: **`SKYLINE_BUILD_REVIEW.md`**.
+2. **Secrets:** Copy `.env.example` → `.env` and set at least `XAI_API_KEY`.
+
+3. **Gmail:** Add Google OAuth Desktop client JSON as `credentials.json` at the project root, then:
+   ```
+   python scripts/oauth_login.py
+   ```
+
+4. **Run:**
+   ```
+   python -m streamlit run main.py
+   ```
 
 ## Tests
 
-From the project root (with `.venv` activated if you use one):
-
-```powershell
+```
 pip install -r requirements-dev.txt
 pytest
 ```
 
-Tests live under **`tests/`** (Sal JSON parsing and friendly API error strings; no live Grok calls).
+All tests live under `tests/`. No live API calls required.
 
-## GitHub
+## Key documentation
 
-Remote: [Mr-Skyline/Sal---Skyline-Agentic-Lawyer](https://github.com/Mr-Skyline/Sal---Skyline-Agentic-Lawyer)
-
-After Git is installed and `git config --global user.name` / `user.email` are set:
-
-```powershell
-Set-Location "C:\Users\travi\Projects\AI Lawyer Build"
-powershell -ExecutionPolicy Bypass -File .\PUSH_NOW.ps1
-```
+| Document | Location |
+|---|---|
+| Build review & phase alignment | `docs/SKYLINE_BUILD_REVIEW.md` |
+| Operations runbook | `docs/OPERATIONS_ELITE.txt` |
+| Supabase schema | `docs/supabase_schema.sql` |
+| Secrets template | `docs/SECRETS_TEMPLATE.txt` |
+| OAuth setup guides | `docs/OAUTH_STEPS.txt`, `docs/OAUTH_FALLBACK_STEPS.txt` |
+| Embeddings design (Track D) | `docs/TRACK_D_EMBEDDINGS_DESIGN.md` |
+| Agent coordination | `AGENT_TEAM_CHECKLIST.md`, `AGENTS.md` |
 
 ## Do not commit
 
-`.env`, `credentials.json`, `token.pickle`, `.venv/`, `skyline_review/`, and logs are listed in `.gitignore`.
+`.env`, `credentials.json`, `token.pickle`, `.venv/`, `skyline_review/`, and logs are in `.gitignore`.
 
-## Troubleshooting Git
+## Remote
 
-**Do not** `git clone` the repo *into* this folder (you get a nested `Sal---Skyline-Agentic-Lawyer/` folder and Git records it wrong). This tree **is** the repo; use `git init` / `PUSH_NOW.ps1` here only.
-
-If push is rejected because GitHub already has a README: run `git pull origin main --allow-unrelated-histories --no-rebase`, resolve any conflicts, then `git push -u origin main`.
-
-**Replace placeholder identity:** `git config --global user.name` / `user.email` should be your real name and email, not the examples.
+[Mr-Skyline/Sal---Skyline-Agentic-Lawyer](https://github.com/Mr-Skyline/Sal---Skyline-Agentic-Lawyer)

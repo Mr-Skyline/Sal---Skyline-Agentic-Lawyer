@@ -1,24 +1,29 @@
+# Secrets and credentials
 .env
+token.pickle
+credentials.json
+credentials.*.backup.json
+.streamlit/secrets.toml
+
+# Python
 .venv/
 __pycache__/
 *.py[cod]
 .pytest_cache/
-token.pickle
-credentials.json
-credentials.*.backup.json
+
+# Application data
 dispute_agent_log.jsonl
 skyline_review/
 correspondence_sync_state.json
-.streamlit/secrets.toml
-
-# Local archives / logs (optional sync_worker or dev noise)
 correspondence_archive/
+
+# Local noise
 *.log
 Thumbs.db
 .DS_Store
 
-# Accidental nested clone of the same GitHub repo (keep one flat tree only)
+# Accidental nested clone
 Sal---Skyline-Agentic-Lawyer/
 
-# Accidental editor / scratch exports
+# Editor scratch
 Windows PowerShell*.txt
