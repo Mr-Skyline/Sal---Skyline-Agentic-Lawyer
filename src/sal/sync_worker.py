@@ -4,6 +4,7 @@ Continuous Gmail ingest for a dedicated agent inbox (CC/To monitoring).
   python -m src.sal.sync_worker              # loop: poll every SYNC_POLL_INTERVAL_SEC
   python -m src.sal.sync_worker --once       # single cycle (good for Task Scheduler)
   python -m src.sal.sync_worker --dry-run    # list threads that would archive/skip; no disk writes
+  python -m src.sal.sync_worker --status     # print last successful cycle from .health.json
 
 Requires: OAuth token for the agent Gmail account and AGENT_GMAIL_ADDRESS.
 CORRESPONDENCE_ARCHIVE_DIR is required for normal sync, not for --dry-run.
@@ -19,17 +20,24 @@ SIGINT/SIGTERM set a shutdown flag; the main loop exits gracefully on the next w
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import signal
 import sys
 import threading
+from datetime import datetime, timezone
 from pathlib import Path
 
 from dotenv import load_dotenv
 
 from .config import ROOT
 from .evidence import get_gmail_service
-from .ingest import default_state_path, preview_sync_cc_threads, sync_cc_threads_once
+from .ingest import (
+    default_state_path,
+    format_sync_summary,
+    preview_sync_cc_threads,
+    sync_cc_threads_once,
+)
 from .logger_util import log_event
 
 _shutdown = threading.Event()
@@ -41,6 +49,21 @@ def _handle_signal(signum, frame):
 
 signal.signal(signal.SIGINT, _handle_signal)
 signal.signal(signal.SIGTERM, _handle_signal)
+
+
+def _write_health(state_path: Path, summary: dict, cycle: int) -> None:
+    """Write a .health.json next to the state file for external monitoring."""
+    health_path = state_path.with_suffix(".health.json")
+    health = {
+        "last_success": datetime.now(timezone.utc).isoformat(),
+        "cycle": cycle,
+        "threads_seen": summary.get("threads_seen", 0),
+        "archived": summary.get("archived", 0),
+    }
+    try:
+        health_path.write_text(json.dumps(health, indent=2), encoding="utf-8")
+    except OSError:
+        pass
 
 
 def main() -> None:
@@ -58,7 +81,20 @@ def main() -> None:
         action="store_true",
         help="Print threads that would archive or skip; no archive, state, or Supabase writes",
     )
+    parser.add_argument(
+        "--status",
+        action="store_true",
+        help="Print last health check from .health.json and exit",
+    )
     args = parser.parse_args()
+
+    if args.status:
+        health_path = default_state_path().with_suffix(".health.json")
+        if health_path.exists():
+            print(health_path.read_text(encoding="utf-8"))
+        else:
+            print("No health file found. Worker may not have run yet.", file=sys.stderr)
+        sys.exit(0 if health_path.exists() else 1)
 
     agent = os.environ.get("AGENT_GMAIL_ADDRESS", "").strip()
     if not agent:
@@ -113,14 +149,16 @@ def main() -> None:
         sys.exit(0)
 
     consecutive = 0
+    cycle_number = 0
     while True:
         try:
             service = get_gmail_service()
             summary = sync_cc_threads_once(service, agent, archive_dir, state_path)
-            print(
-                f"Synced: seen={summary['threads_seen']} archived={summary['archived']} "
-                f"skipped={summary['skipped']}"
-            )
+            enriched = format_sync_summary(summary, agent, cycle_number)
+            log_event("sync_cycle_summary", extra=enriched)
+            print(enriched["human_summary"])
+            _write_health(state_path, summary, cycle_number)
+            cycle_number += 1
             consecutive = 0
         except Exception as e:
             consecutive += 1

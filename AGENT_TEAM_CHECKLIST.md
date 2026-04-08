@@ -101,3 +101,4 @@
 | 2026-04-08 | PR #2 merge main      | Resolved conflicts: CI combines `cursor/**` push triggers + pip cache + verbose pytest + import smoke; `src/sal/analysis.py` keeps brace JSON extract, merges `friendly_sal_api_message` chain + timeout-before-connection + single-quote string literals in `_extract_json_object`; `_normalize_sal_fields` handles missing `analysis` key. |
 | 2026-04-08 | dotenv override       | `sync_worker.py` + `verify_setup.py`: `load_dotenv(..., override=False)` so subprocess/tests/Task Scheduler env is not clobbered by `.env`; `test_run_checks_no_xai_key` mocks `load_dotenv` when asserting missing `XAI_API_KEY`. |
 | 2026-04-08 | Loose ends cleanup | Stale path refs + old branding fixed across AGENTS, checklist §1-§5, OPERATIONS header. |
+| 2026-04-08 | Track E completion | sync_worker: health file, --status flag, structured summaries, format_sync_summary. |

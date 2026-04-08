@@ -17,6 +17,26 @@ from .gmail_retry import gmail_execute
 from .logger_util import log_event
 
 
+def format_sync_summary(
+    summary: Dict[str, Any],
+    agent_email: str,
+    cycle_number: int = 0,
+) -> Dict[str, Any]:
+    """Enrich a sync_cc_threads_once summary with operator-friendly fields."""
+    return {
+        **summary,
+        "agent_email": agent_email,
+        "cycle": cycle_number,
+        "status": "ok" if summary.get("archived", 0) >= 0 else "error",
+        "human_summary": (
+            f"Cycle {cycle_number}: "
+            f"{summary.get('threads_seen', 0)} threads seen, "
+            f"{summary.get('archived', 0)} archived, "
+            f"{summary.get('skipped', 0)} unchanged"
+        ),
+    }
+
+
 def cc_monitor_gmail_query(agent_email: str, newer_than_days: Optional[int] = None) -> str:
     """Gmail search: messages involving this address recently."""
     days = newer_than_days if newer_than_days is not None else SYNC_NEWER_THAN_DAYS

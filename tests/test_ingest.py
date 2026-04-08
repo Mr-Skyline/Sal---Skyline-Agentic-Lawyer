@@ -5,6 +5,7 @@ from pathlib import Path
 from src.sal.ingest import (
     cc_monitor_gmail_query,
     default_state_path,
+    format_sync_summary,
     load_sync_state,
     save_sync_state,
 )
@@ -81,3 +82,29 @@ def test_default_state_path():
     p = default_state_path()
     assert isinstance(p, Path)
     assert p.name == "correspondence_sync_state.json"
+
+
+# ---------- format_sync_summary ----------
+
+
+def test_format_sync_summary_keys_and_human_summary():
+    summary = {"query": "q", "threads_seen": 5, "archived": 2, "skipped": 3}
+    out = format_sync_summary(summary, "agent@example.com", cycle_number=7)
+    assert out["agent_email"] == "agent@example.com"
+    assert out["cycle"] == 7
+    assert out["status"] == "ok"
+    assert out["threads_seen"] == 5
+    assert out["archived"] == 2
+    assert out["skipped"] == 3
+    assert out["human_summary"] == (
+        "Cycle 7: 5 threads seen, 2 archived, 3 unchanged"
+    )
+
+
+def test_format_sync_summary_zero_values():
+    summary = {"query": "q", "threads_seen": 0, "archived": 0, "skipped": 0}
+    out = format_sync_summary(summary, "a@b.co", cycle_number=0)
+    assert out["status"] == "ok"
+    assert out["human_summary"] == (
+        "Cycle 0: 0 threads seen, 0 archived, 0 unchanged"
+    )
