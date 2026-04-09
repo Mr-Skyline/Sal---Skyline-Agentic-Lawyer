@@ -8,7 +8,6 @@ from unittest.mock import MagicMock
 
 from src.sal.draft import build_raw_mime, ensure_label_id
 
-
 # ---------- build_raw_mime ----------
 
 class TestBuildRawMime:

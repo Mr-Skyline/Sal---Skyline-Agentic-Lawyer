@@ -9,7 +9,6 @@ from src.sal.ingest import (
     save_sync_state,
 )
 
-
 # ---------- cc_monitor_gmail_query ----------
 
 def test_cc_monitor_query_default_days():

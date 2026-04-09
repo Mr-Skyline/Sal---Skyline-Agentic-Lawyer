@@ -21,11 +21,6 @@ from src.sal.config import (
     SKYLINE_REVIEW_DIR,
     TOKEN_FILE,
 )
-from src.sal.review_export import (
-    default_client_label,
-    default_issue_keyword,
-    export_analysis_markdown,
-)
 from src.sal.draft import create_gmail_draft
 from src.sal.evidence import (
     fetch_messages_for_evidence,
@@ -38,8 +33,14 @@ from src.sal.evidence import (
     save_uploaded_files,
 )
 from src.sal.logger_util import log_event
+from src.sal.review_export import (
+    default_client_label,
+    default_issue_keyword,
+    export_analysis_markdown,
+)
 from src.sal.secrets_store import save_api_keys_to_dotenv, save_gmail_credentials_json
 from src.sal.verify_setup import run_checks
+
 
 def _counterparty_domain_for_log(addr: str) -> str:
     """Host after @ for logs only — avoid recording full addresses in JSONL."""

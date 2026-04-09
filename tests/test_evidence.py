@@ -1,7 +1,6 @@
 """Tests for src.sal.evidence — pure/local functions only (no Gmail API)."""
 from __future__ import annotations
 
-import io
 import json
 import os
 import tempfile
@@ -15,7 +14,6 @@ from src.sal.evidence import (
     partition_evidence_upload_paths,
     save_uploaded_files,
 )
-
 
 # ---------- claim_to_query_keywords ----------
 
