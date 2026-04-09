@@ -38,27 +38,27 @@ This file stays short; **AGENT_TEAM_CHECKLIST.md** is the source of truth for pr
 ### Environment
 
 - Python **3.12** virtual environment at `.venv/`. Activate: `source .venv/bin/activate`.
-- Core + dev deps: `pip install -r requirements-dev.txt` (includes `requirements.txt` + `pytest`).
-- `.env` must exist in the project root (copy from `.env.example`). At minimum set `XAI_API_KEY` (even a placeholder) so `verify_setup.py` passes without `--strict`.
+- Core + dev deps: `pip install -r requirements-dev.txt` (includes `requirements.txt` + `pytest` + `ruff`).
+- `.env` must exist in the project root (copy from `.env.example`). At minimum set `XAI_API_KEY` so `verify_setup.py` passes without `--strict`.
 - On Ubuntu/Debian the `python3.12-venv` system package is required to create the venv.
+- Code is in `src/sal/` package. `main.py` stays at root. Scripts in `scripts/`.
 
 ### Running services
 
-- **Streamlit UI:** `streamlit run main.py --server.headless true --server.port 8501` — the app starts even without `credentials.json` / `token.pickle`; those are only needed for live Gmail operations.
-- The `INTENDED_PROJECT_ROOT` warning ("not canonical root") is expected in Cloud Agent VMs — it can be ignored.
+- **Streamlit UI:** `streamlit run main.py --server.headless true --server.port 8501` — starts even without `credentials.json` / `token.pickle`.
 
 ### Checks & tests
 
-- `python smoke_check.py` — fast import sweep, no network calls.
-- `python verify_setup.py` — environment diagnostics (non-strict passes without Gmail creds).
-- `pytest` — runs Sal JSON parsing and friendly API error message tests (no live Grok calls).
+- `python scripts/smoke_check.py` — fast import sweep, no network calls.
+- `python -c "from src.sal.verify_setup import run_checks; [print(l) for l in run_checks().lines]"` — environment diagnostics.
+- `pytest` — 126 tests (Sal JSON parsing, evidence, draft, review, sync worker, etc.). No live API calls.
 
 ### Hello world (Grok/Sal analysis without Gmail)
 
 To verify the `XAI_API_KEY` and Grok pipeline work without Gmail credentials:
 
 ```python
-from analysis import analyze_and_draft
+from src.sal.analysis import analyze_and_draft
 import json, os
 from dotenv import load_dotenv
 load_dotenv('.env', override=True)
@@ -71,11 +71,11 @@ result = analyze_and_draft(
 )
 ```
 
-This exercises `analysis.py` → `sal_prompt.py` → xAI Grok API → JSON parse → result dict. The Streamlit "Analyze & draft" button additionally calls `evidence.py` (Gmail fetch) first, so it requires `credentials.json` + `token.pickle`.
+This exercises `src/sal/analysis.py` → `sal_prompt.py` → xAI Grok API → JSON parse → result dict. The Streamlit "Analyze & draft" button additionally calls `evidence.py` (Gmail fetch) first, so it requires `credentials.json` + `token.pickle`.
 
 ### Gotchas
 
-- The `.cmd` / `.ps1` scripts in the repo are Windows-only; use the Linux equivalents above.
+- Windows `.cmd` / `.ps1` scripts live in `scripts/`; use the Linux equivalents above.
 - **Gmail OAuth:** requires `credentials.json` + browser sign-in on the VM Desktop pane. Use `OAUTH_OPEN_BROWSER=1` so `run_local_server` auto-opens Chrome on the VM. The Google Cloud project (`sal-skyline-agentic-lawyer-int`) OAuth consent screen must be **External + Testing** with the Gmail account added as a test user — "Internal" silently drops the auth code from redirects.
 - The Streamlit "Analyze & draft" form always tries Gmail fetch before calling Grok. To test Grok analysis in isolation, call `analyze_and_draft()` directly from Python (see hello world above).
 - Optional extras: `requirements-ocr.txt` (ZHIPU OCR), `requirements-supabase.txt` (metadata DB). Install both for full functionality.
