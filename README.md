@@ -78,6 +78,23 @@ pytest
 
 All tests live under `tests/`. No live API calls required.
 
+## Docker
+
+Build and run with Docker Compose:
+
+```bash
+docker compose up -d
+```
+
+This starts both the Streamlit UI (port 8501) and the sync worker. Place `.env`, `credentials.json`, and `token.pickle` in the project root before starting.
+
+Build just the image:
+
+```bash
+docker build -t sal-skyline .
+docker run -p 8501:8501 --env-file .env sal-skyline
+```
+
 ## Key documentation
 
 | Document | Location |

@@ -15,6 +15,9 @@
 | `.gitignore` | Secrets, venv, caches, local archives |
 | `.python-version` | Preferred Python version (pyenv) |
 | `Makefile` | Convenience targets: install, test, lint, smoke, run, sync |
+| `Dockerfile` | Production image: Python 3.12-slim, Streamlit on port 8501, non-root `sal` user, health check |
+| `docker-compose.yml` | `sal` (UI) + `sync-worker` services with bind mounts for secrets and archives |
+| `.dockerignore` | Excludes secrets, caches, tests, and heavy local dirs from the build context |
 
 ## `.github/workflows/`
 

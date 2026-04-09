@@ -41,6 +41,7 @@
 - [ ] Core deps: `requirements.txt`; OCR / Supabase: optional requirement files as documented in `scripts/bootstrap_venv.cmd` output.
 - [ ] Optional env vars: see `.env.example` (`XAI_API_KEY`, `GROK_MODEL`, `GROK_MAX_OUTPUT_TOKENS`, `SAL_PROMPT_PATH`, Gmail/OAuth, Supabase, etc.).
 - [ ] **Package structure:** All core Python lives in `src/sal/`. Entry point: `main.py`. Scripts: `scripts/`. Docs: `docs/`. Prompts: `prompts/`.
+- [ ] **Docker:** From project root, `docker compose up -d` runs Streamlit (8501) + `sync-worker`; needs `.env`, `credentials.json`, and `token.pickle` at repo root (see `README.md` Docker section).
 
 ## 4. Application behavior (Skyline / Sal)
 
@@ -102,3 +103,5 @@
 | 2026-04-08 | dotenv override       | `sync_worker.py` + `verify_setup.py`: `load_dotenv(..., override=False)` so subprocess/tests/Task Scheduler env is not clobbered by `.env`; `test_run_checks_no_xai_key` mocks `load_dotenv` when asserting missing `XAI_API_KEY`. |
 | 2026-04-08 | Loose ends cleanup | Stale path refs + old branding fixed across AGENTS, checklist §1-§5, OPERATIONS header. |
 | 2026-04-08 | Track E completion | sync_worker: health file, --status flag, structured summaries, format_sync_summary. |
+| 2026-04-08 | Option 3 hardening | Track C done: db.py cached client + batch + query; schema RLS templates + trigger; Docker containerization. |
+| 2026-04-09 | Repo Architect Docker | Added `Dockerfile`, `docker-compose.yml`, `.dockerignore`; README Docker section; STRUCTURE.md rows; §3 Docker bullet. |
