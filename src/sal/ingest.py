@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from .config import ROOT, SYNC_NEWER_THAN_DAYS
-from .db import upsert_correspondence_thread
+from .db import batch_upsert_correspondence_threads
 from .evidence import fetch_messages_for_evidence
 from .gmail_retry import gmail_execute
 from .logger_util import log_event
@@ -154,6 +154,7 @@ def sync_cc_threads_once(
 
     archived = 0
     skipped = 0
+    upsert_rows: List[Dict[str, Any]] = []
     for tid in thread_ids:
         newest, subject = _thread_latest_internal_date(service, tid)
         if newest == 0:
@@ -166,8 +167,7 @@ def sync_cc_threads_once(
         path = archive_thread_json(service, tid, archive_dir)
         threads_map[tid] = newest
         archived += 1
-        # TODO: switch to batch_upsert_correspondence_threads when available (db.py).
-        upsert_correspondence_thread(
+        upsert_rows.append(
             {
                 "gmail_thread_id": tid,
                 "subject": subject[:500] if subject else None,
@@ -175,6 +175,9 @@ def sync_cc_threads_once(
                 "archive_path": str(path.resolve()),
             }
         )
+
+    if upsert_rows:
+        batch_upsert_correspondence_threads(upsert_rows)
 
     save_sync_state(state_path, state)
     log_event(
