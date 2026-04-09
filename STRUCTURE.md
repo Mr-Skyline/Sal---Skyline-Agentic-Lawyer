@@ -44,6 +44,7 @@ All application logic lives here as a proper Python package with relative import
 | `gmail_retry.py` | Exponential backoff wrapper for Gmail API calls |
 | `logger_util.py` | Append-only JSONL event logging |
 | `secrets_store.py` | Write API keys to `.env`, validate Gmail OAuth JSON |
+| `embeddings.py` | Track D: text chunking, content hashing, OpenAI-compatible embedding generation |
 | `verify_setup.py` | Environment checker (CLI + Streamlit callable) |
 
 ## `prompts/`
@@ -90,4 +91,5 @@ All application logic lives here as a proper Python package with relative import
 | File | Purpose |
 |---|---|
 | `test_analysis_json.py` | JSON parsing + field normalization tests |
+| `test_embeddings.py` | Track D: chunk_text, chunk_hash, load/chunk archive, generate_embeddings |
 | `test_friendly_sal_api.py` | Operator-facing error message tests |
