@@ -563,7 +563,7 @@ with st.expander("🔍 Semantic search (experimental)", expanded=False):
         else:
             try:
                 from src.sal.embeddings import generate_embeddings
-                from src.sal.vector_store import semantic_search, get_embedding_stats
+                from src.sal.vector_store import get_embedding_stats, semantic_search
 
                 stats = get_embedding_stats()
                 if not stats or stats.get("total_chunks", 0) == 0:

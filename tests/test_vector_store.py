@@ -8,7 +8,6 @@ import pytest
 
 from src.sal.db import _cached_supabase_client
 from src.sal.vector_store import (
-    EMBEDDINGS_TABLE,
     delete_source_embeddings,
     get_embedding_stats,
     semantic_search,
