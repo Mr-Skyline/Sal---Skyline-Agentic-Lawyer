@@ -4,7 +4,24 @@ from __future__ import annotations
 import os
 from unittest.mock import patch
 
-from src.sal.db import insert_review_export_meta, supabase_client, upsert_correspondence_thread
+import pytest
+
+from src.sal.db import (
+    _cached_supabase_client,
+    batch_upsert_correspondence_threads,
+    get_correspondence_thread,
+    insert_review_export_meta,
+    list_review_exports,
+    supabase_client,
+    upsert_correspondence_thread,
+)
+
+
+@pytest.fixture(autouse=True)
+def _clear_supabase_client_lru_cache():
+    """lru_cache ignores env changes; reset between tests."""
+    _cached_supabase_client.cache_clear()
+    yield
 
 
 class TestSupabaseClient:
@@ -27,6 +44,39 @@ class TestSupabaseClient:
             clear=True,
         ):
             assert supabase_client() is None
+
+    def test_cached_client_returns_none_no_env(self):
+        _cached_supabase_client.cache_clear()
+        with patch.dict(os.environ, {}, clear=True):
+            assert _cached_supabase_client() is None
+
+
+class TestBatchUpsertCorrespondenceThreads:
+    def test_batch_upsert_no_supabase(self):
+        with patch.dict(os.environ, {}, clear=True):
+            n = batch_upsert_correspondence_threads(
+                [{"gmail_thread_id": "t1", "subject": "a"}]
+            )
+            assert n == 0
+
+    def test_batch_upsert_empty_list(self):
+        assert batch_upsert_correspondence_threads([]) == 0
+
+
+class TestGetCorrespondenceThread:
+    def test_get_thread_no_supabase(self):
+        with patch.dict(os.environ, {}, clear=True):
+            assert get_correspondence_thread("abc") is None
+
+
+class TestListReviewExports:
+    def test_list_exports_no_supabase(self):
+        with patch.dict(os.environ, {}, clear=True):
+            assert list_review_exports() == []
+
+    def test_list_exports_with_state_filter_no_supabase(self):
+        with patch.dict(os.environ, {}, clear=True):
+            assert list_review_exports(primary_state="CO") == []
 
 
 class TestUpsertCorrespondenceThread:

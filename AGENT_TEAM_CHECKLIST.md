@@ -59,6 +59,7 @@
 - [ ] Optional: `py -m src.sal.verify_setup` or `py scripts/env_check.py` from project root when diagnosing environment issues.
 - [ ] Quick import sweep: `py scripts/smoke_check.py` before a big merge or after dependency changes.
 - [ ] Tests: `pytest` from project root (config in `pyproject.toml`).
+- [ ] **`src/sal/db.py` + `lru_cache`:** `_cached_supabase_client` is keyed only by call args (none), not env — tests that vary `SUPABASE_*` must call `_cached_supabase_client.cache_clear()` or use the autouse fixture in `tests/test_db.py`.
 
 ## 6. Before you stop (handoff)
 
@@ -103,5 +104,6 @@
 | 2026-04-08 | dotenv override       | `sync_worker.py` + `verify_setup.py`: `load_dotenv(..., override=False)` so subprocess/tests/Task Scheduler env is not clobbered by `.env`; `test_run_checks_no_xai_key` mocks `load_dotenv` when asserting missing `XAI_API_KEY`. |
 | 2026-04-08 | Loose ends cleanup | Stale path refs + old branding fixed across AGENTS, checklist §1-§5, OPERATIONS header. |
 | 2026-04-08 | Track E completion | sync_worker: health file, --status flag, structured summaries, format_sync_summary. |
+| 2026-04-09 | Workflow Engineer | `db.py`: cached Supabase client, batch upsert, read helpers; `test_db.py` autouse `cache_clear` + no-Supabase tests; §5 lru_cache testing note. |
 | 2026-04-08 | Option 3 hardening | Track C done: db.py cached client + batch + query; schema RLS templates + trigger; Docker containerization. |
 | 2026-04-09 | Repo Architect Docker | Added `Dockerfile`, `docker-compose.yml`, `.dockerignore`; README Docker section; STRUCTURE.md rows; §3 Docker bullet. |
