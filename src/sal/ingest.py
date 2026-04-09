@@ -166,6 +166,7 @@ def sync_cc_threads_once(
         path = archive_thread_json(service, tid, archive_dir)
         threads_map[tid] = newest
         archived += 1
+        # TODO: switch to batch_upsert_correspondence_threads when available (db.py).
         upsert_correspondence_thread(
             {
                 "gmail_thread_id": tid,

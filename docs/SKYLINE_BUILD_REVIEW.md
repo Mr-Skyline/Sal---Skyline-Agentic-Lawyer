@@ -2,7 +2,7 @@
 
 Use this during implementation passes. Update dates and notes as releases ship.
 
-**Last reviewed:** 2026-04-08
+**Last reviewed:** 2026-04-09
 
 ---
 
@@ -44,7 +44,7 @@ Use this so parallel work does not collide.
 |--------|--------|--------|
 | A | Sal prompt + `SKYLINE_REVIEW_DIR` markdown output wired from app | Done (`sal_prompt` + `review_export.export_analysis_markdown`, naming expander, evidence excerpt; operator **Project state** lock + Technical metadata; prompt file vs deployed behavior per review pass 1) |
 | B | Gmail/thread ingest (existing pipeline extended) | Partial (Streamlit evidence: `GMAIL_EVIDENCE_*` tunables + query description hints; core thread path; optional **Project state** lock for review subfolders) |
-| C | Supabase metadata only | Partial (`db.py` thread upsert + `skyline_review_exports` insert audit; graceful skip on API/schema errors; `py -m src.sal.verify_setup --supabase-ping`; `docs/supabase_schema.sql` ops header + RLS note for future client exposure) |
+| C | Supabase metadata only | Done (service role) — `src/sal/db.py` cached client + thread upsert + review audit insert + batch upsert + query functions; `docs/supabase_schema.sql` v1.0 with RLS policy templates, updated_at trigger; graceful skip on errors. Client-side RLS policies documented but commented until browser exposure. |
 | D | Embeddings + pattern search | TBD — design only: **`docs/TRACK_D_EMBEDDINGS_DESIGN.md`** (no prod vectors / embedding calls until approved) |
 | E | Worker: proactive / scheduled | Done for polling path (`src/sal/sync_worker.py`): SIGINT/SIGTERM graceful shutdown, exponential backoff, `--once` / `scripts/sync_worker_once.cmd`, `--dry-run` + `preview_sync_cc_threads`, disk archive + atomic state, **`--status`** + `correspondence_sync_state.health.json` for monitors, **`format_sync_summary`** + JSONL `sync_cycle_summary` for structured logs, JSONL size rotation via `SAL_LOG_JSONL_MAX_BYTES` in `logger_util.py`. **Still** polling-only — **not** Gmail Pub/Sub or push-based proactive. |
 | F | UI polish (black/gold, streamlined) | Done (dark theme, gold button accents, Cormorant Garamond + Source Sans 3 typography, tab icons, enhanced sidebar status, citation formatting, footer) |
