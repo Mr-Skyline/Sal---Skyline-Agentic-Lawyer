@@ -1,3 +1,5 @@
 # Optional: sync_worker / db.py metadata upserts to Supabase.
+# Track D (pgvector): the supabase client handles vector columns natively via
+# PostgREST — no separate 'vecs' package needed.
 -r requirements.txt
 supabase>=2.4.0

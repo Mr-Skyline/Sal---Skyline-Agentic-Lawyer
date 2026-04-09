@@ -27,8 +27,8 @@ Canonical project folder: C:\Users\travi\Projects\AI Lawyer Build
    F) Grok / Sal errors → Technical tab JSON; dispute_agent_log.jsonl (sal_run_error).
 
 0c) SHIPPED VS ROADMAP (truth for operators — do not over-promise)
-   Shipped: Streamlit intake + Gmail evidence + Sal (Grok) + review Markdown under SKYLINE_REVIEW_DIR; optional Supabase metadata only (thread upserts + review-export audit rows); sync_worker polling with --once / --dry-run / Task Scheduler; manual retention (no product auto-delete).
-   Not shipped: Vector embeddings / RAG; Gmail Pub/Sub push; proactive alerts beyond polling; automatic destruction of matter files. Prompt phases 6–8 and docs/SKYLINE_BUILD_REVIEW.md list roadmap until marked done.
+   Shipped: Streamlit intake + Gmail evidence + Sal (Grok) + review Markdown under SKYLINE_REVIEW_DIR; optional Supabase metadata only (thread upserts + review-export audit rows); sync_worker polling with --once / --dry-run / Task Scheduler; manual retention (no product auto-delete); Track D v1 semantic search (embeddings + pgvector + Streamlit search panel — Gmail thread archives as v1 source).
+   Not shipped: RAG augmentation of Grok context; Review Markdown indexing for embeddings; Gmail Pub/Sub push; proactive alerts beyond polling; automatic destruction of matter files. Prompt phases 6–8 and docs/SKYLINE_BUILD_REVIEW.md list roadmap until marked done.
 
 1) STREAMLIT (interactive drafting)
    - New venv: run scripts/bootstrap_venv.cmd from the canonical folder (prefers Python 3.12 / 3.11).
@@ -109,7 +109,20 @@ Canonical project folder: C:\Users\travi\Projects\AI Lawyer Build
    - Restrict share-drive ACLs to people who may see privileged content.
    - This stack is an assistant, not a substitute for counsel or compliance review.
 
-6) NEXT IDEAS (not implemented yet)
+6) TRACK D: SEMANTIC SEARCH
+
+   Prerequisites:
+     - Supabase pgvector extension enabled (Dashboard → Database → Extensions → vector)
+     - Apply docs/supabase_schema.sql v1.1 (adds sal_embeddings table + match_sal_embeddings RPC)
+     - Set EMBEDDING_API_KEY (or XAI_API_KEY) and optionally EMBEDDING_MODEL, EMBEDDING_BASE_URL
+
+   The embedding indexer is not yet automated. To index thread archives manually:
+     python -c "from src.sal.embeddings import chunks_from_thread_archive, generate_embeddings; from src.sal.vector_store import upsert_chunks_with_embeddings; from pathlib import Path; chunks = chunks_from_thread_archive(Path('correspondence_archive/THREAD_ID.json')); vectors = generate_embeddings([c['text'] for c in chunks]); print(upsert_chunks_with_embeddings(chunks, vectors))"
+
+   Search is available in the Streamlit UI under "Semantic search (experimental)".
+
+7) NEXT IDEAS (not implemented yet)
    - Gmail Pub/Sub push instead of polling
-   - RAG over archives + embeddings in Supabase
+   - RAG augmentation of Grok context with embeddings
+   - Review Markdown indexing (skyline_review/*.md) as v2 embedding source
    - Microsoft Graph for pure-M365 tenants

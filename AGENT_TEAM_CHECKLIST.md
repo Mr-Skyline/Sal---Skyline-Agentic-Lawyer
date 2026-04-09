@@ -107,3 +107,4 @@
 | 2026-04-09 | Workflow Engineer | `db.py`: cached Supabase client, batch upsert, read helpers; `test_db.py` autouse `cache_clear` + no-Supabase tests; §5 lru_cache testing note. |
 | 2026-04-08 | Option 3 hardening | Track C done: db.py cached client + batch + query; schema RLS templates + trigger; Docker containerization. |
 | 2026-04-09 | Repo Architect Docker | Added `Dockerfile`, `docker-compose.yml`, `.dockerignore`; README Docker section; STRUCTURE.md rows; §3 Docker bullet. |
+| 2026-04-09 | Track D v1 | Embeddings: chunking + embedding API + pgvector store + Streamlit search panel. All 6 tracks addressed. |

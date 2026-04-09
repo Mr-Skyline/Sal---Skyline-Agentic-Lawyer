@@ -2,7 +2,7 @@
 
 Use this during implementation passes. Update dates and notes as releases ship.
 
-**Last reviewed:** 2026-04-09
+**Last reviewed:** 2026-04-09 (Track D v1 implemented)
 
 ---
 
@@ -45,7 +45,7 @@ Use this so parallel work does not collide.
 | A | Sal prompt + `SKYLINE_REVIEW_DIR` markdown output wired from app | Done (`sal_prompt` + `review_export.export_analysis_markdown`, naming expander, evidence excerpt; operator **Project state** lock + Technical metadata; prompt file vs deployed behavior per review pass 1) |
 | B | Gmail/thread ingest (existing pipeline extended) | Done (`deduplicate_evidence` + source-type count summary + attachment metadata in Technical tab; core thread path; optional **Project state** lock for review subfolders; `download_gmail_attachment` + `download_message_attachments` helpers) |
 | C | Supabase metadata only | Done (service role) — `src/sal/db.py` cached client + thread upsert + review audit insert + batch upsert + query functions; `docs/supabase_schema.sql` v1.0 with RLS policy templates, updated_at trigger; graceful skip on errors. Client-side RLS policies documented but commented until browser exposure. |
-| D | Embeddings + pattern search | TBD — design only: **`docs/TRACK_D_EMBEDDINGS_DESIGN.md`** (no prod vectors / embedding calls until approved) |
+| D | Embeddings + pattern search | v1 implemented — `src/sal/embeddings.py` (chunking + embedding API), `src/sal/vector_store.py` (pgvector CRUD + similarity search), Streamlit search panel, `docs/supabase_schema.sql` v1.1 with `sal_embeddings` table + `match_sal_embeddings` RPC. Sources: Gmail thread archives. Standalone search UI; RAG augmentation deferred. |
 | E | Worker: proactive / scheduled | Done for polling path (`src/sal/sync_worker.py`): SIGINT/SIGTERM graceful shutdown, exponential backoff, `--once` / `scripts/sync_worker_once.cmd`, `--dry-run` + `preview_sync_cc_threads`, disk archive + atomic state, **`--status`** + `correspondence_sync_state.health.json` for monitors, **`format_sync_summary`** + JSONL `sync_cycle_summary` for structured logs, JSONL size rotation via `SAL_LOG_JSONL_MAX_BYTES` in `logger_util.py`. **Still** polling-only — **not** Gmail Pub/Sub or push-based proactive. |
 | F | UI polish (black/gold, streamlined) | Done (dark theme, gold button accents, Cormorant Garamond + Source Sans 3 typography, tab icons, enhanced sidebar status, citation formatting, footer) |
 

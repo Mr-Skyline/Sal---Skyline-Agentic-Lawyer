@@ -543,6 +543,82 @@ if draft_btn:
             with st.expander("Technical details", expanded=False):
                 st.exception(e)
 
+# --- Semantic Search (Track D) ---
+with st.expander("🔍 Semantic search (experimental)", expanded=False):
+    st.caption(
+        "Search across indexed Gmail threads using semantic similarity. "
+        "Requires embeddings to be generated and stored in Supabase pgvector."
+    )
+
+    search_query = st.text_input(
+        "Search query",
+        placeholder="Find threads about payment disputes in Colorado...",
+        key="semantic_search_query",
+    )
+    search_limit = st.slider("Max results", 1, 20, 5, key="semantic_search_limit")
+
+    if st.button("Search", key="semantic_search_btn"):
+        if not search_query.strip():
+            st.warning("Enter a search query.")
+        else:
+            try:
+                from src.sal.embeddings import generate_embeddings
+                from src.sal.vector_store import semantic_search, get_embedding_stats
+
+                stats = get_embedding_stats()
+                if not stats or stats.get("total_chunks", 0) == 0:
+                    st.info(
+                        "No embeddings found. Run the embedding indexer first to populate the vector store."
+                    )
+                else:
+                    with st.spinner("Generating query embedding..."):
+                        query_vectors = generate_embeddings([search_query.strip()])
+
+                    if not query_vectors:
+                        st.error("Failed to generate query embedding.")
+                    else:
+                        with st.spinner("Searching..."):
+                            results = semantic_search(
+                                query_vectors[0],
+                                limit=search_limit,
+                            )
+
+                        if results:
+                            st.success(f"Found **{len(results)}** matching chunks.")
+                            for i, r in enumerate(results, 1):
+                                score = r.get("similarity", 0)
+                                text = r.get("chunk_text", "")
+                                meta = r.get("metadata", {})
+                                if isinstance(meta, str):
+                                    try:
+                                        import json
+
+                                        meta = json.loads(meta)
+                                    except Exception:
+                                        meta = {}
+                                subject = meta.get("subject", "Unknown")
+                                sender = meta.get("sender", "")
+                                date = meta.get("date", "")
+
+                                with st.container():
+                                    st.markdown(
+                                        f"**{i}. {subject}** — similarity: `{score:.3f}`"
+                                    )
+                                    if sender or date:
+                                        st.caption(f"From: {sender} · {date}")
+                                    st.text(text[:500] + ("..." if len(text) > 500 else ""))
+                                    st.divider()
+                        else:
+                            st.info("No matching results found. Try broadening your query.")
+
+            except ValueError as ve:
+                st.error(str(ve))
+            except Exception as e:
+                log_event("semantic_search_ui_error", error=str(e))
+                st.error(f"Search failed: {e}")
+                with st.expander("Technical details", expanded=False):
+                    st.exception(e)
+
 # --- Deep admin (collapsed) ---
 with st.expander("Administrator · connectivity & credentials", expanded=False):
     st.caption(f"Project root: `{ROOT}`")
@@ -614,9 +690,9 @@ with st.expander("Administrator · connectivity & credentials", expanded=False):
             "and **`docs/supabase_schema.sql`**."
         )
         st.caption(
-            "Shipped today: polling sync only (no Gmail push alerts). Supabase stores thread metadata and "
-            "review-export audit rows—no vectors or semantic search. Retention and deletion stay manual unless "
-            "counsel approves a written policy."
+            "Shipped today: polling sync only (no Gmail push alerts). Supabase stores thread metadata, "
+            "review-export audit rows, and vector embeddings for semantic search (Track D). "
+            "Retention and deletion stay manual unless counsel approves a written policy."
         )
 
 # --- Footer ---

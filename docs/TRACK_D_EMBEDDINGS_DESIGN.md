@@ -1,6 +1,6 @@
 # Track D — Embeddings & pattern search (design only)
 
-**Status:** Design note. **No production vectors, embedding API calls, or search UI** until product and counsel explicitly approve scope, vendor, and data classes.
+**Status:** v1 implemented. Chunking engine (`src/sal/embeddings.py`), pgvector store (`src/sal/vector_store.py`), Streamlit search panel, schema v1.1. Gmail thread archives are the v1 source. Review Markdown indexing and RAG augmentation are deferred to v2.
 
 ---
 
@@ -57,10 +57,10 @@ Final chunk sizes depend on the chosen embedding model’s context limit and cos
 
 ## Open decisions (for Agents 1–2 + product)
 
-1. Which **sources** ship in v1 (threads only vs include `skyline_review`)?
-2. **pgvector vs external** vector store vs “embed on read” prototype?
-3. **Access control:** Same service role as today, or per-matter RLS if vectors land in Supabase?
-4. Sal integration: **retrieve-then-augment** Grok context vs standalone search UI only?
+1. Which **sources** ship in v1 (threads only vs include `skyline_review`)? → **Decided:** v1 sources are **Gmail thread archives** only. `skyline_review/*.md` indexing deferred to v2.
+2. **pgvector vs external** vector store vs “embed on read” prototype? → **Decided:** **pgvector in Supabase** (same project as metadata). `sal_embeddings` table + `match_sal_embeddings` RPC in `docs/supabase_schema.sql` v1.1.
+3. **Access control:** Same service role as today, or per-matter RLS if vectors land in Supabase? → **Decided:** Same **service role** as today. Per-matter RLS deferred until browser-facing exposure is considered.
+4. Sal integration: **retrieve-then-augment** Grok context vs standalone search UI only? → **Decided:** **Standalone search UI** in Streamlit (experimental expander). RAG augmentation of Grok context deferred to v2.
 
 ---
 

@@ -1,11 +1,11 @@
--- Schema version: 1.0.0
--- Last updated: 2026-04-08
+-- Schema version: 1.1.0
+-- Last updated: 2026-04-09
 -- Apply: Supabase Dashboard → SQL → New query → paste → Run
 --
 -- Skyline / sync_worker + Streamlit audit metadata
 --
 -- HOW TO APPLY (ops)
---   1) Confirm header version (this file is 1.0.0); Supabase Dashboard → SQL → New query → paste this file → Run.
+--   1) Confirm header version (this file is 1.1.0); Supabase Dashboard → SQL → New query → paste this file → Run.
 --   2) Use service role key only in server-side .env (sync_worker / worker); never in browsers.
 --   3) pip install -r requirements-supabase.txt in the project venv.
 --   4) python -m src.sal.verify_setup --supabase-ping  (must print "supabase-ping: ok" when URL+key set).
@@ -84,3 +84,72 @@ create trigger correspondence_threads_updated_at
 -- alter table public.skyline_review_exports add column if not exists updated_at timestamptz default now();
 -- create index if not exists skyline_review_exports_updated_at_idx
 --   on public.skyline_review_exports (updated_at desc);
+
+-- --------------------------------------------------------------------------
+-- Track D: Semantic search (pgvector)
+-- Enable the extension first: Supabase Dashboard → Database → Extensions → vector → Enable
+-- Or: create extension if not exists vector;
+-- --------------------------------------------------------------------------
+
+create table if not exists public.sal_embeddings (
+  id bigint generated always as identity primary key,
+  content_hash text not null,
+  source_type text not null default 'gmail_thread',
+  source_id text,
+  source_path text,
+  chunk_text text not null,
+  metadata jsonb default '{}',
+  embedding vector(1536),
+  created_at timestamptz not null default now(),
+  unique (content_hash)
+);
+
+create index if not exists sal_embeddings_source_idx
+  on public.sal_embeddings (source_type, source_id);
+
+-- IVFFlat index for cosine similarity. Requires some rows to exist for optimal
+-- clustering; harmless on empty/small tables but won't speed up queries until
+-- the table has a few hundred rows.
+create index if not exists sal_embeddings_embedding_idx
+  on public.sal_embeddings
+  using ivfflat (embedding vector_cosine_ops)
+  with (lists = 100);
+
+comment on table public.sal_embeddings is 'Track D: text chunks with vector embeddings for semantic search (pgvector)';
+
+-- Similarity search RPC for Track D
+create or replace function public.match_sal_embeddings(
+  query_embedding vector(1536),
+  match_count int default 10,
+  match_threshold float default 0.0,
+  filter_source_type text default null
+)
+returns table (
+  id bigint,
+  chunk_text text,
+  source_type text,
+  source_id text,
+  source_path text,
+  metadata jsonb,
+  similarity float
+)
+language plpgsql
+as $$
+begin
+  return query
+  select
+    se.id,
+    se.chunk_text,
+    se.source_type,
+    se.source_id,
+    se.source_path,
+    se.metadata,
+    1 - (se.embedding <=> query_embedding) as similarity
+  from public.sal_embeddings se
+  where
+    (filter_source_type is null or se.source_type = filter_source_type)
+    and 1 - (se.embedding <=> query_embedding) > match_threshold
+  order by se.embedding <=> query_embedding
+  limit match_count;
+end;
+$$;
