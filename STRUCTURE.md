@@ -24,7 +24,7 @@
 
 ## `src/sal/` — Core package
 
-All application logic lives here as a proper Python package with relative imports.
+All application logic lives here as a proper Python package with relative imports. Run CLIs as `python -m src.sal.<module>` (e.g. `python -m src.sal.verify_setup`).
 
 | Module | Responsibility |
 |---|---|

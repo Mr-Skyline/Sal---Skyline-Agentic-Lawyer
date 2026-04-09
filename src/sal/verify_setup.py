@@ -1,9 +1,9 @@
 """
 Check local setup without starting Streamlit.
 
-  py verify_setup.py                # print status
-  py verify_setup.py --strict       # exit 1 if Gmail + Grok prerequisites missing
-  py verify_setup.py --supabase-ping  # also test DB read; exit 2 if ping fails when flag is set
+  py -m src.sal.verify_setup                # print status
+  py -m src.sal.verify_setup --strict       # exit 1 if Gmail + Grok prerequisites missing
+  py -m src.sal.verify_setup --supabase-ping  # also test DB read; exit 1 if ping fails when flag is set
 """
 from __future__ import annotations
 
@@ -62,7 +62,7 @@ def run_checks() -> SetupStatus:
     lines.append(f"  credentials.json: {'ok' if cred else 'MISSING'}")
     tok = TOKEN_FILE.exists()
     lines.append(
-        f"  token.pickle: {'ok' if tok else 'missing (run py oauth_login.py from this folder)'}"
+        f"  token.pickle: {'ok' if tok else 'missing (run py scripts/oauth_login.py from this folder)'}"
     )
     lines.append(f"  .env file: {'ok' if (ROOT / '.env').exists() else 'optional if keys are in environment'}")
     xai = bool(os.environ.get("XAI_API_KEY"))
@@ -98,7 +98,7 @@ def run_checks() -> SetupStatus:
 
             lines.append("  supabase package: import ok")
             lines.append(
-                "  supabase schema: apply supabase_schema.sql (threads + skyline_review_exports audit)"
+                "  supabase schema: apply docs/supabase_schema.sql (threads + skyline_review_exports audit)"
             )
         except ImportError:
             lines.append(
@@ -114,12 +114,12 @@ def run_checks() -> SetupStatus:
     elif not agent_ok:
         lines.append(
             "  sync_worker env: incomplete - missing AGENT_GMAIL_ADDRESS "
-            "(archive dir is set; set both for py sync_worker.py)"
+            "(archive dir is set; set both for py -m src.sal.sync_worker)"
         )
     else:
         lines.append(
             "  sync_worker env: incomplete - missing CORRESPONDENCE_ARCHIVE_DIR "
-            "(agent mailbox is set; set both for py sync_worker.py)"
+            "(agent mailbox is set; set both for py -m src.sal.sync_worker)"
         )
 
     grok_and_credentials_ok = xai and cred
@@ -183,7 +183,7 @@ def main() -> None:
         if not ping_ok:
             print("\n".join(out_lines))
             print(
-                "\n--supabase-ping failed: fix package, .env, or schema (see supabase_schema.sql).",
+                "\n--supabase-ping failed: fix package, .env, or schema (see docs/supabase_schema.sql).",
                 file=sys.stderr,
             )
             sys.exit(1)
@@ -191,7 +191,7 @@ def main() -> None:
     if args.strict and not status.gmail_api_ok:
         print(
             "\nStrict mode: need XAI_API_KEY, credentials.json, and token.pickle "
-            "(run py oauth_login.py from this folder if token is missing).",
+            "(run py scripts/oauth_login.py from this folder if token is missing).",
             file=sys.stderr,
         )
         sys.exit(1)

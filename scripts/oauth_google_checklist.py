@@ -1,6 +1,6 @@
 """
 Print what Google Cloud must allow for this app (no secrets).
-Run from the project folder: py oauth_google_checklist.py
+Run from the project folder: py scripts/oauth_google_checklist.py
 """
 from __future__ import annotations
 
@@ -33,7 +33,7 @@ def _desktop_escape() -> None:
     print("  Google Cloud -> APIs & Services -> Credentials -> Create Credentials ->")
     print("  OAuth client ID -> Application type: **Desktop app** -> Create ->")
     print("  **Download JSON** -> save as credentials.json in this folder (replace the old file).\n")
-    print("Then run: py oauth_login.py\n")
+    print("Then run: py scripts/oauth_login.py\n")
     print("The app uses a random free loopback port (Desktop client); you do not list")
     print("http://127.0.0.1:8765/ etc. in the Console for that client.\n")
 
@@ -61,7 +61,7 @@ def main() -> None:
         if pid and pid != "(missing)":
             print(f"   {_gmail_link(pid)}\n")
         print("2) OAuth consent: Internal = only your Workspace org; External + test users if needed.\n")
-        print("3) Run: py oauth_login.py (leave terminal open until done).\n")
+        print("3) Run: py scripts/oauth_login.py (leave terminal open until done).\n")
         return
 
     ports = [OAUTH_LOCAL_PORT + i for i in range(OAUTH_LOCAL_PORT_TRY_COUNT)]
@@ -84,7 +84,7 @@ def main() -> None:
         print(f"   {_gmail_link(pid)}\n")
 
     print("4) OAuth consent screen: Internal is OK for same-Workspace users.\n")
-    print("5) Run: py oauth_login.py\n")
+    print("5) Run: py scripts/oauth_login.py\n")
     _desktop_escape()
 
 
