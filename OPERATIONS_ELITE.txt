@@ -13,7 +13,7 @@ Canonical project folder: the root of this Git checkout (run all commands below 
    3. .env from SECRETS_TEMPLATE.txt: at least XAI_API_KEY; place Gmail Desktop OAuth JSON as credentials.json
    4. py oauth_login.py  (browser; writes token.pickle here)
    5. py verify_setup.py --strict   (exit 1 = fix stderr: key, credentials, or token)
-   6. streamlit run main.py  (or run.cmd)
+   6. streamlit run main.py  (or scripts\run.cmd / root run.cmd stub)
    Optional: pip install -r requirements-supabase.txt → supabase_schema.sql in dashboard → py verify_setup.py --supabase-ping (exit 2 if ping fails)
    Optional: AGENT_GMAIL_ADDRESS + CORRESPONDENCE_ARCHIVE_DIR → py sync_worker.py --dry-run then --once
 

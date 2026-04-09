@@ -91,3 +91,4 @@
 | 2026-04-12 | Single project root   | User: **only** `C:\Users\travi\Projects\AI Lawyer Build`. README + `SKYLINE_BUILD_REVIEW` + `SECRETS_TEMPLATE` + `run.cmd` + `config` comment; §3 checklist = one workspace, mirror script recovery-only; deleted stray `Windows PowerShell*.txt` from repo root. |
 | 2026-04-07 | Package infra | `pyproject.toml`, `src/sal/config.py`, `INTENDED_PROJECT_ROOT` env; scripts under `scripts/`; `.gitattributes`; path docs. |
 | 2026-04-07 | Package follow-up | README tests note `pip install -e ".[dev]"`; checklist bootstrap path; `scripts/run.cmd` in SKYLINE + OAUTH_STEPS. |
+| 2026-04-07 | CI | `.github/workflows/test.yml`: Ubuntu + Python 3.12, `pip install -e ".[dev]"`, `pytest`. |

@@ -13,5 +13,5 @@ Fewer "Allow" prompts in Cursor
 3) Project rule for the AI:
    .cursor/rules/agent-autonomy.mdc  (in this repo)
 
-This repo's scripts no longer use "pause" in bootstrap_venv.cmd so automation
+This repo's scripts no longer use "pause" in scripts\bootstrap_venv.cmd so automation
 and agents are not blocked waiting for a keypress.
