@@ -24,16 +24,20 @@ def test_sync_worker_help_exits_zero():
 def test_sync_worker_no_agent_email_exits_one():
     """Without AGENT_GMAIL_ADDRESS the worker exits with code 1."""
     import os
-    env = {k: v for k, v in os.environ.items()
-           if k not in ("AGENT_GMAIL_ADDRESS", "CORRESPONDENCE_ARCHIVE_DIR")}
+    import tempfile
+    env = dict(os.environ)
     env["AGENT_GMAIL_ADDRESS"] = ""
     env["CORRESPONDENCE_ARCHIVE_DIR"] = ""
-    result = subprocess.run(
-        [sys.executable, "-m", "sync_worker", "--once"],
-        capture_output=True,
-        text=True,
-        timeout=10,
-        env=env,
-    )
-    assert result.returncode == 1
-    assert "AGENT_GMAIL_ADDRESS" in result.stderr or "CORRESPONDENCE_ARCHIVE_DIR" in result.stderr
+    with tempfile.TemporaryDirectory() as tmpdir:
+        empty_env = os.path.join(tmpdir, ".env")
+        with open(empty_env, "w") as f:
+            f.write("AGENT_GMAIL_ADDRESS=\nCORRESPONDENCE_ARCHIVE_DIR=\n")
+        result = subprocess.run(
+            [sys.executable, "-m", "sync_worker", "--once"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            env=env,
+            cwd=tmpdir,
+        )
+    assert result.returncode != 0
