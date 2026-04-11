@@ -2,7 +2,7 @@
 
 Use this during implementation passes. Update dates and notes as releases ship.
 
-**Last reviewed:** 2026-04-07
+**Last reviewed:** 2026-04-11
 
 ---
 
@@ -45,7 +45,7 @@ Use this so parallel work does not collide.
 | A | Sal prompt + `SKYLINE_REVIEW_DIR` markdown output wired from app | Done (`sal_prompt` + `review_export.export_analysis_markdown`, naming expander, evidence excerpt; operator **Project state** lock + Technical metadata; prompt file vs deployed behavior per review pass 1) |
 | B | Gmail/thread ingest (existing pipeline extended) | Partial (Streamlit evidence: `GMAIL_EVIDENCE_*` tunables + query description hints; core thread path; optional **Project state** lock for review subfolders) |
 | C | Supabase metadata only | Partial (`db.py` thread upsert + `skyline_review_exports` insert audit; graceful skip on API/schema errors; `py verify_setup.py --supabase-ping`; `supabase_schema.sql` ops header + RLS note for future client exposure) |
-| D | Embeddings + pattern search | TBD — design only: **`TRACK_D_EMBEDDINGS_DESIGN.md`** (no prod vectors / embedding calls until approved) |
+| D | Embeddings + pattern search | Partial (`embed_jobs.py` pipeline built, `document_embeddings` table + `match_documents` RPC in Supabase pgvector; feature-flagged off via `EMBEDDINGS_ENABLED`; chunking + thread/review loaders + batch embed + semantic search CLI; design in `TRACK_D_EMBEDDINGS_DESIGN.md`) |
 | E | Worker: proactive / scheduled | Partial (polling `sync_worker.py`; `--once` + `scripts/sync_worker_once.cmd` for Task Scheduler; `--dry-run` + `preview_sync_cc_threads` listing; disk archive + state; **not** Gmail Pub/Sub or push-based proactive) |
 | F | UI polish (black/gold, streamlined) | Deferred |
 

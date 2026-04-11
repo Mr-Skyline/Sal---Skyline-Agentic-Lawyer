@@ -110,5 +110,21 @@ Canonical project folder: the root of this Git checkout (run all commands below 
 
 6) NEXT IDEAS (not implemented yet)
    - Gmail Pub/Sub push instead of polling
-   - RAG over archives + embeddings in Supabase
+   - RAG over archives + embeddings in Supabase (Track D pipeline built, activation pending)
    - Microsoft Graph for pure-M365 tenants
+
+7) TRACK D — EMBEDDINGS (feature-flagged off)
+   Pipeline: embed_jobs.py (chunking + batch embed + Supabase pgvector upsert + semantic search).
+   Supabase: document_embeddings table + match_documents RPC function.
+   ACTIVATE
+     .env: EMBEDDINGS_ENABLED=1
+     .env: EMBED_BASE_URL=https://api.openai.com/v1  (or other OpenAI-compatible provider)
+     .env: OPENAI_API_KEY=sk-...  (or XAI_API_KEY if provider supports embeddings)
+     .env: EMBED_MODEL=text-embedding-3-small  (default; change to match provider)
+   EMBED
+     py embed_jobs.py embed --source threads    (archived Gmail from correspondence_archive/)
+     py embed_jobs.py embed --source reviews    (skyline_review/*.md)
+   SEARCH
+     py embed_jobs.py search "payment dispute Colorado"
+   Config: EMBED_DIMENSIONS (default 1536), EMBED_BATCH_SIZE (default 20).
+   Design doc: TRACK_D_EMBEDDINGS_DESIGN.md

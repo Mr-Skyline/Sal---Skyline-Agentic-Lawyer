@@ -97,6 +97,10 @@ def _inject_theme_css() -> None:
             border-radius: 10px;
             background: rgba(22, 22, 22, 0.55);
         }
+        div[data-testid="stExpander"] details summary {
+            font-weight: 500;
+            letter-spacing: 0.02em;
+        }
         [data-testid="stForm"] {
             border: 1px solid rgba(201, 162, 39, 0.22);
             border-radius: 14px;
@@ -105,6 +109,66 @@ def _inject_theme_css() -> None:
         }
         hr {
             border-color: rgba(201, 162, 39, 0.2) !important;
+        }
+        /* Buttons */
+        .stButton > button[kind="primary"] {
+            background: linear-gradient(135deg, #C9A227 0%, #a88520 100%);
+            color: #0C0C0C;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+        .stButton > button[kind="primary"]:hover {
+            background: linear-gradient(135deg, #d4af37 0%, #C9A227 100%);
+            box-shadow: 0 2px 12px rgba(201, 162, 39, 0.3);
+        }
+        .stButton > button:not([kind="primary"]) {
+            border: 1px solid rgba(201, 162, 39, 0.3);
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+        .stButton > button:not([kind="primary"]):hover {
+            border-color: rgba(201, 162, 39, 0.6);
+            background: rgba(201, 162, 39, 0.08);
+        }
+        /* Tabs */
+        .stTabs [data-baseweb="tab-list"] {
+            gap: 0;
+            border-bottom: 1px solid rgba(201, 162, 39, 0.2);
+        }
+        .stTabs [data-baseweb="tab"] {
+            padding: 8px 20px;
+            border-radius: 8px 8px 0 0;
+        }
+        .stTabs [aria-selected="true"] {
+            background: rgba(201, 162, 39, 0.1);
+            border-bottom: 2px solid #C9A227;
+        }
+        /* Alerts */
+        [data-testid="stAlert"] {
+            border-radius: 8px;
+        }
+        /* Text inputs */
+        .stTextInput > div > div > input,
+        .stTextArea > div > div > textarea {
+            border-radius: 8px;
+            border: 1px solid rgba(201, 162, 39, 0.18);
+            transition: border-color 0.2s ease;
+        }
+        .stTextInput > div > div > input:focus,
+        .stTextArea > div > div > textarea:focus {
+            border-color: rgba(201, 162, 39, 0.5);
+            box-shadow: 0 0 0 1px rgba(201, 162, 39, 0.2);
+        }
+        /* Select boxes */
+        .stSelectbox > div > div {
+            border-radius: 8px;
+        }
+        /* Download button */
+        .stDownloadButton > button {
+            border: 1px solid rgba(201, 162, 39, 0.3);
+            border-radius: 8px;
         }
         </style>
         """,
