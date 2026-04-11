@@ -1,0 +1,5 @@
+[console_scripts]
+skyline-env-check = sal.cli:skyline_env_check
+skyline-smoke = sal.cli:skyline_smoke
+skyline-streamlit = sal.cli:skyline_streamlit
+skyline-verify-setup = sal.cli:skyline_verify_setup
