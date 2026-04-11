@@ -148,23 +148,18 @@ def analyze_and_draft(
             usage = getattr(resp, "usage", None)
 
             text = (resp.choices[0].message.content or "{}").strip()
-            if text.startswith("```"):
-                text = re.sub(r"^```(?:json)?\s*", "", text, flags=re.IGNORECASE)
-                text = re.sub(r"\s*```\s*$", "", text)
+            if not resp.choices or not resp.choices[0].message.content:
+                raise RuntimeError("Grok returned no completion choices (empty response).")
+            text = resp.choices[0].message.content.strip()
             try:
-                data = json.loads(text)
-            except json.JSONDecodeError as e:
+                data, _mode = _parse_sal_response_json(text)
+            except (json.JSONDecodeError, RuntimeError) as e:
                 preview = (text[:280] + "…") if len(text) > 280 else text
                 raise RuntimeError(
                     "Grok returned content that is not valid JSON. Try again, shorten evidence, "
                     f"or switch model. Raw preview: {preview!r}"
                 ) from e
-            if "draft_body" not in data:
-                data["draft_body"] = data.get("reply", "") or ""
-            if "analysis" not in data:
-                data["analysis"] = ""
-            if "citations" not in data:
-                data["citations"] = []
+            _normalize_sal_fields(data)
             inferred = normalize_primary_state(data.get("primary_state"))
             data["primary_state"] = forced_state if forced_state else inferred
             extra = {"model": model, "assistant_profile": assistant_profile}
@@ -188,6 +183,8 @@ def analyze_and_draft(
 def _parse_sal_response_json(raw: str) -> tuple[Dict[str, Any], str]:
     """Parse Sal JSON from model output. Returns (data, mode)."""
     text = (raw or "").strip()
+    if not text:
+        raise RuntimeError("Expected a JSON object, got empty string.")
     if text.startswith("\ufeff"):
         text = text.lstrip("\ufeff")
     if text.startswith("```"):
@@ -197,9 +194,9 @@ def _parse_sal_response_json(raw: str) -> tuple[Dict[str, Any], str]:
     try:
         parsed: Any = json.loads(text)
     except json.JSONDecodeError:
-        m = re.search(r"\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}", text, re.DOTALL)
+        m = re.search(r"\{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*\}", text, re.DOTALL)
         if not m:
-            raise
+            raise RuntimeError("Expected a JSON object but could not find one in model output.")
         mode = "extracted"
         parsed = json.loads(m.group(0))
     if isinstance(parsed, list):
@@ -213,8 +210,10 @@ def _normalize_sal_fields(data: Dict[str, Any]) -> None:
     """Normalize Sal JSON fields in place."""
     if data.get("analysis") is None:
         data["analysis"] = ""
-    if data.get("draft_body") is None:
-        data["draft_body"] = data.get("reply", "") or ""
+    if "draft_body" not in data or data.get("draft_body") is None:
+        data["draft_body"] = data.pop("reply", "") or ""
+    elif "reply" in data and "draft_body" not in data:
+        data["draft_body"] = data.pop("reply", "") or ""
     cit = data.get("citations")
     if isinstance(cit, str):
         data["citations"] = [cit] if cit else []

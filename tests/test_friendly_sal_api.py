@@ -4,7 +4,6 @@ from __future__ import annotations
 import unittest
 from unittest.mock import MagicMock
 
-from analysis import friendly_sal_api_message
 from openai import (
     APIConnectionError,
     APIStatusError,
@@ -13,6 +12,8 @@ from openai import (
     InternalServerError,
     RateLimitError,
 )
+
+from analysis import friendly_sal_api_message
 
 
 class TestFriendlySalApiMessage(unittest.TestCase):
