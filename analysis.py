@@ -17,6 +17,7 @@ from typing import Any, Dict, Optional
 
 from openai import OpenAI
 
+from logger_util import log_event
 from sal.config import (
     API_BASE_DELAY_SEC,
     API_MAX_RETRIES,
@@ -25,7 +26,6 @@ from sal.config import (
     JOB_SITE_STATE_CODES,
     normalize_primary_state,
 )
-from logger_util import log_event
 from sal_prompt import (
     json_tool_contract_suffix,
     load_sal_behavioral_text,

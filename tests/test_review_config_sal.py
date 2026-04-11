@@ -6,12 +6,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from sal.config import normalize_primary_state, review_state_subdir
 from review_export import (
     _review_filename,
     default_client_label,
     default_issue_keyword,
 )
+from sal.config import normalize_primary_state, review_state_subdir
 from sal_prompt import load_sal_behavioral_text
 
 

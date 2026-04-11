@@ -14,11 +14,11 @@ import tempfile
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-from sal.config import ROOT, SYNC_NEWER_THAN_DAYS
 from db import upsert_correspondence_thread
 from evidence import fetch_messages_for_evidence
 from gmail_retry import gmail_execute
 from logger_util import log_event
+from sal.config import ROOT, SYNC_NEWER_THAN_DAYS
 
 
 def cc_monitor_gmail_query(agent_email: str, newer_than_days: Optional[int] = None) -> str:

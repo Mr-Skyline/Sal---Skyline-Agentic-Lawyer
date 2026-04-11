@@ -26,6 +26,8 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from oauthlib.oauth2.rfc6749.errors import MismatchingStateError
 
+from gmail_retry import gmail_execute
+from logger_util import log_event
 from sal.config import (
     CREDENTIALS_FILE,
     GMAIL_SCOPES,
@@ -35,8 +37,6 @@ from sal.config import (
     OAUTH_OPEN_BROWSER,
     TOKEN_FILE,
 )
-from gmail_retry import gmail_execute
-from logger_util import log_event
 
 
 def _oauth_port_in_use(err: OSError) -> bool:

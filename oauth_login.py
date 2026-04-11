@@ -29,8 +29,8 @@ def main() -> None:
         tok.unlink()
         print("Removed old token.pickle")
 
-    from sal.config import CREDENTIALS_FILE, OAUTH_OPEN_BROWSER, TOKEN_FILE
     from evidence import get_gmail_service
+    from sal.config import CREDENTIALS_FILE, OAUTH_OPEN_BROWSER, TOKEN_FILE
 
     if not CREDENTIALS_FILE.exists():
         raise SystemExit(f"Missing credentials.json:\n  {CREDENTIALS_FILE.resolve()}")

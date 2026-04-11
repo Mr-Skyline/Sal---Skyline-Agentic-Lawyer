@@ -1,8 +1,8 @@
 """Tests for config, review_export, and sal_prompt core utilities."""
 from pathlib import Path
 
-from sal.config import normalize_primary_state, review_state_subdir
 from review_export import default_client_label, default_issue_keyword
+from sal.config import normalize_primary_state, review_state_subdir
 from sal_prompt import (
     default_sal_prompt_path,
     json_tool_contract_suffix,

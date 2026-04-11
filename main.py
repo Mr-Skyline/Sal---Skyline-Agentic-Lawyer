@@ -15,20 +15,6 @@ import streamlit as st
 from dotenv import load_dotenv
 
 from analysis import analyze_and_draft
-from sal.config import (
-    CREDENTIALS_FILE,
-    INTENDED_PROJECT_ROOT,
-    JOB_SITE_STATE_CODES,
-    LOG_FILE,
-    ROOT,
-    SKYLINE_REVIEW_DIR,
-    TOKEN_FILE,
-)
-from review_export import (
-    default_client_label,
-    default_issue_keyword,
-    export_analysis_markdown,
-)
 from draft import create_gmail_draft
 from evidence import (
     fetch_messages_for_evidence,
@@ -41,6 +27,20 @@ from evidence import (
     save_uploaded_files,
 )
 from logger_util import log_event
+from review_export import (
+    default_client_label,
+    default_issue_keyword,
+    export_analysis_markdown,
+)
+from sal.config import (
+    CREDENTIALS_FILE,
+    INTENDED_PROJECT_ROOT,
+    JOB_SITE_STATE_CODES,
+    LOG_FILE,
+    ROOT,
+    SKYLINE_REVIEW_DIR,
+    TOKEN_FILE,
+)
 from secrets_store import save_api_keys_to_dotenv, save_gmail_credentials_json
 from verify_setup import run_checks
 
