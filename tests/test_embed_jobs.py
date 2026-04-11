@@ -35,11 +35,13 @@ class TestChunkText:
 class TestLoadThreadChunks:
     def test_loads_from_archive(self):
         with tempfile.TemporaryDirectory() as d:
-            thread = {
-                "thread_id": "abc123",
-                "subject": "Test thread",
-                "messages": [{"body": "This is the body of a test email."}],
-            }
+            thread = [
+                {
+                    "source": "gmail",
+                    "subject": "Test thread",
+                    "text": "This is the body of a test email.",
+                },
+            ]
             Path(d, "abc123.json").write_text(json.dumps(thread), encoding="utf-8")
             chunks = load_thread_chunks(d)
             assert len(chunks) >= 1

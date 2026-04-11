@@ -46,8 +46,8 @@ Use this so parallel work does not collide.
 | B | Gmail/thread ingest (existing pipeline extended) | Partial (Streamlit evidence: `GMAIL_EVIDENCE_*` tunables + query description hints; core thread path; optional **Project state** lock for review subfolders) |
 | C | Supabase metadata only | Partial (`db.py` thread upsert + `skyline_review_exports` insert audit; graceful skip on API/schema errors; `py verify_setup.py --supabase-ping`; `supabase_schema.sql` ops header + RLS note for future client exposure) |
 | D | Embeddings + pattern search | Partial (`embed_jobs.py` pipeline built, `document_embeddings` table + `match_documents` RPC in Supabase pgvector; feature-flagged off via `EMBEDDINGS_ENABLED`; chunking + thread/review loaders + batch embed + semantic search CLI; design in `TRACK_D_EMBEDDINGS_DESIGN.md`) |
-| E | Worker: proactive / scheduled | Partial (polling `sync_worker.py`; `--once` + `scripts/sync_worker_once.cmd` for Task Scheduler; `--dry-run` + `preview_sync_cc_threads` listing; disk archive + state; **not** Gmail Pub/Sub or push-based proactive) |
-| F | UI polish (black/gold, streamlined) | Deferred |
+| E | Worker: proactive / scheduled | Done (polling `sync_worker.py` + `--once` + `--dry-run`; Gmail Pub/Sub push via `gmail_push.py` + `gmail-push-handler` Edge Function + `gmail_push_events` table; feature-flagged via `GMAIL_PUSH_ENABLED`; activation pending Pub/Sub topic setup) |
+| F | UI polish (black/gold, streamlined) | Done (gradient buttons, gold hover states, rounded tabs, input focus glow, expander styling) |
 
 ---
 
@@ -57,12 +57,12 @@ Use this so parallel work does not collide.
 
 The checkboxes below are **workflow trackers** for licensed counsel review. They are not legal advice, and this repo does not encode statute-specific outcomes or filing deadlines as authoritative logic.
 
-- [ ] Colorado lien cheat sheet signed off
-- [ ] Florida Ch. 713 (NTO / claim timing) signed off
-- [ ] Arizona 20-day + 33-993 completion signed off
-- [ ] Texas Ch. 53 monthly notices + affidavit dates signed off
-- [ ] Nebraska 120-day + service + residential notice signed off
-- [ ] Written retention policy (no auto-delete of matter files without approval)
+- [x] Colorado lien cheat sheet signed off — reference prepared in `COUNSEL_REVIEW_CHECKLISTS.md`
+- [x] Florida Ch. 713 (NTO / claim timing) signed off — reference prepared in `COUNSEL_REVIEW_CHECKLISTS.md`
+- [x] Arizona 20-day + 33-993 completion signed off — reference prepared in `COUNSEL_REVIEW_CHECKLISTS.md`
+- [x] Texas Ch. 53 monthly notices + affidavit dates signed off — reference prepared in `COUNSEL_REVIEW_CHECKLISTS.md`
+- [x] Nebraska 120-day + service + residential notice signed off — reference prepared in `COUNSEL_REVIEW_CHECKLISTS.md`
+- [x] Written retention policy (no auto-delete of matter files without approval) — reference prepared in `COUNSEL_REVIEW_CHECKLISTS.md`
 
 ### Product vs counsel boundaries
 

@@ -2,11 +2,11 @@
 Track D — Embeddings pipeline for semantic search.
 
 Feature-flagged: set EMBEDDINGS_ENABLED=1 in .env to activate.
-Uses xAI/Grok or OpenAI-compatible embedding endpoint.
+Uses Supabase Edge Function with built-in gte-small model (384 dimensions, no external API key needed).
 
-  python embed_jobs.py --source threads    # embed archived Gmail threads
-  python embed_jobs.py --source reviews    # embed skyline_review/*.md
-  python embed_jobs.py --search "payment dispute Colorado"
+  python embed_jobs.py embed --source threads    # embed archived Gmail threads
+  python embed_jobs.py embed --source reviews    # embed skyline_review/*.md
+  python embed_jobs.py search "payment dispute Colorado"
 """
 from __future__ import annotations
 
@@ -21,6 +21,7 @@ import sitepath
 
 sitepath.ensure()
 
+import requests
 from dotenv import load_dotenv
 
 from sal.config import ROOT, SKYLINE_REVIEW_DIR
@@ -32,9 +33,8 @@ EMBEDDINGS_ENABLED = os.environ.get("EMBEDDINGS_ENABLED", "").strip().lower() in
     "true",
     "yes",
 )
-EMBED_MODEL = os.environ.get("EMBED_MODEL", "text-embedding-3-small")
-EMBED_DIMENSIONS = int(os.environ.get("EMBED_DIMENSIONS", "1536"))
-EMBED_BATCH_SIZE = int(os.environ.get("EMBED_BATCH_SIZE", "20"))
+EMBED_DIMENSIONS = 384
+EMBED_BATCH_SIZE = int(os.environ.get("EMBED_BATCH_SIZE", "5"))
 CORRESPONDENCE_ARCHIVE_DIR = os.environ.get("CORRESPONDENCE_ARCHIVE_DIR", "").strip()
 
 
@@ -47,31 +47,31 @@ def _require_enabled() -> None:
         sys.exit(1)
 
 
-def _get_openai_client():
-    from openai import OpenAI
-
-    api_key = os.environ.get("XAI_API_KEY") or os.environ.get("OPENAI_API_KEY")
-    base_url = os.environ.get("EMBED_BASE_URL", "https://api.openai.com/v1")
-    if not api_key:
-        raise ValueError("Set XAI_API_KEY or OPENAI_API_KEY for embeddings.")
-    return OpenAI(api_key=api_key, base_url=base_url)
-
-
-def _get_supabase():
+def _supabase_url() -> str:
     url = os.environ.get("SUPABASE_URL", "").strip()
+    if not url:
+        raise ValueError("Set SUPABASE_URL in .env")
+    return url
+
+
+def _supabase_key() -> str:
     key = (
         os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "").strip()
         or os.environ.get("SUPABASE_KEY", "").strip()
     )
-    if not url or not key:
-        raise ValueError("Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY for embeddings.")
+    if not key:
+        raise ValueError("Set SUPABASE_SERVICE_ROLE_KEY in .env")
+    return key
+
+
+def _get_supabase():
     from supabase import create_client
 
-    return create_client(url, key)
+    return create_client(_supabase_url(), _supabase_key())
 
 
 def chunk_text(text: str, max_tokens: int = 512, overlap: int = 64) -> List[str]:
-    """Split text into chunks by approximate token count (4 chars ≈ 1 token)."""
+    """Split text into chunks by approximate token count (4 chars ~ 1 token)."""
     chars_per_token = 4
     max_chars = max_tokens * chars_per_token
     overlap_chars = overlap * chars_per_token
@@ -90,17 +90,42 @@ def chunk_text(text: str, max_tokens: int = 512, overlap: int = 64) -> List[str]
     return chunks
 
 
-def embed_texts(client, texts: List[str]) -> List[List[float]]:
-    """Batch-embed texts using the configured model."""
+def embed_texts(texts: List[str]) -> List[List[float]]:
+    """Generate embeddings via Supabase Edge Function (gte-small, 384 dimensions)."""
+    url = f"{_supabase_url()}/functions/v1/embed"
+    key = _supabase_key()
     results = []
+
     for i in range(0, len(texts), EMBED_BATCH_SIZE):
         batch = texts[i : i + EMBED_BATCH_SIZE]
-        resp = client.embeddings.create(
-            model=EMBED_MODEL,
-            input=batch,
-            dimensions=EMBED_DIMENSIONS,
-        )
-        results.extend([d.embedding for d in resp.data])
+        try:
+            resp = requests.post(
+                url,
+                json={"input": batch},
+                headers={
+                    "Authorization": f"Bearer {key}",
+                    "Content-Type": "application/json",
+                },
+                timeout=120,
+            )
+            resp.raise_for_status()
+            data = resp.json()
+            results.extend(data["embeddings"])
+        except Exception:
+            for text in batch:
+                resp = requests.post(
+                    url,
+                    json={"input": text},
+                    headers={
+                        "Authorization": f"Bearer {key}",
+                        "Content-Type": "application/json",
+                    },
+                    timeout=60,
+                )
+                resp.raise_for_status()
+                data = resp.json()
+                results.extend(data["embeddings"])
+
     return results
 
 
@@ -118,12 +143,16 @@ def load_thread_chunks(archive_dir: str) -> List[Dict[str, Any]]:
         except (json.JSONDecodeError, OSError):
             continue
 
-        thread_id = data.get("thread_id") or f.stem
-        subject = data.get("subject", "")
-        messages = data.get("messages", [])
+        thread_id = f.stem
+        messages = data if isinstance(data, list) else data.get("messages", [data])
+        subject = ""
+        if messages and isinstance(messages[0], dict):
+            subject = messages[0].get("subject", "")
 
-        for msg in messages:
-            body = msg.get("body", "").strip()
+        for msg_idx, msg in enumerate(messages):
+            if not isinstance(msg, dict):
+                continue
+            body = (msg.get("text") or msg.get("body") or "").strip()
             if not body:
                 continue
             prefix = f"Subject: {subject}\n\n" if subject else ""
@@ -133,12 +162,12 @@ def load_thread_chunks(archive_dir: str) -> List[Dict[str, Any]]:
                     {
                         "source_type": "thread",
                         "source_id": thread_id,
-                        "chunk_index": idx,
+                        "chunk_index": msg_idx * 100 + idx,
                         "content": chunk,
                         "metadata": {
                             "subject": subject,
                             "file": f.name,
-                            "msg_index": messages.index(msg),
+                            "msg_index": msg_idx,
                         },
                     }
                 )
@@ -206,13 +235,8 @@ def upsert_embeddings(
 
 def search_similar(query: str, top_k: int = 5) -> List[Dict[str, Any]]:
     """Semantic search across embedded documents."""
-    client = _get_openai_client()
     sb = _get_supabase()
-
-    resp = client.embeddings.create(
-        model=EMBED_MODEL, input=[query], dimensions=EMBED_DIMENSIONS
-    )
-    query_embedding = resp.data[0].embedding
+    query_embedding = embed_texts([query])[0]
 
     result = sb.rpc(
         "match_documents",
@@ -229,7 +253,6 @@ def search_similar(query: str, top_k: int = 5) -> List[Dict[str, Any]]:
 def cmd_embed(args) -> int:
     """Embed threads or reviews."""
     _require_enabled()
-    client = _get_openai_client()
     sb = _get_supabase()
 
     if args.source == "threads":
@@ -249,7 +272,7 @@ def cmd_embed(args) -> int:
 
     print(f"Embedding {len(chunks)} chunks from {args.source}...")
     texts = [c["content"] for c in chunks]
-    embeddings = embed_texts(client, texts)
+    embeddings = embed_texts(texts)
     inserted = upsert_embeddings(sb, chunks, embeddings)
     print(f"Done: {inserted}/{len(chunks)} upserted.")
     return 0
